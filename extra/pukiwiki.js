@@ -1,1 +1,1 @@
-src/languages/pukiwiki.js
+../src/languages/pukiwiki.js
