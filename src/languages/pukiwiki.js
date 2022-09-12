@@ -41,12 +41,12 @@ export default function (hljs) {
   };
   const BOLD_MODE = {
     scope: "emphasis",
-    begin: "''",
+    begin: /''(?!')/,
     end: "''",
   };
   const ITALIC_MODE = {
     scope: "strong",
-    begin: "'''",
+    begin: /'{3}/,
     end: "'''",
   };
   const STRIKED_MODE = {
@@ -62,9 +62,13 @@ export default function (hljs) {
   const HYPERLINK_MODE = {
     scope: "link",
     begin: "[[",
+    contains: {
+      match: /.+?/,
+    },
     end: "]]",
   };
   const EMOJI_MODE = {
+    scope: "symbol",
     keywords: [
       "&heart;",
       "&smile;",
