@@ -9,6 +9,7 @@ Website: https://pukiwiki.osdn.jp/
 /**
  * @see https://pukiwiki.osdn.jp/?FormattingRules
  */
+import "highlight.js"
 /**
  * Defines a function to return a language definition object.
  * @param {import("highlight.js").HLJSApi} hljs
@@ -18,36 +19,33 @@ export default function (hljs) {
   /**
     テキスト整形のルール
         ブロック要素
-            段落
-            引用文
-            リスト構造
-            整形済みテキスト
-            表組み
-            CSV形式の表組み
-            見出し
+
+
+
+
             目次
             左寄せ・センタリング・右寄せ
-            水平線
+
             行間開け
             添付ファイル・画像の貼り付け
             テキストの回り込みの解除
             フォーム
         インライン要素
-            文字列
-            改行
-            強調・斜体
+
+
+
             文字サイズ
             文字色
-            取消線
-            注釈
+
+
             添付ファイル・画像の貼り付け
             ルビ構造
             アンカーの設定
             カウンタ表示
             オンライン表示
             バージョン表示
-            WikiName
-            ページ名
+
+
             InterWiki
             リンク
             エイリアス
@@ -57,13 +55,12 @@ export default function (hljs) {
             文字参照文字
             数値参照文字
         その他
-            コメント行
+
  */
 
   /* ブロック要素 */
-  /* 段落 */
   /**
-   * <p>...</p>
+   * 段落
    * @type {import("highlight.js").Mode}
    */
   const PARAGRAPH = {
@@ -71,7 +68,7 @@ export default function (hljs) {
     variants: [{ begin: /^~(?=\s+)/, end: /\s+/, excludeEnd: true }],
   };
 
-  /* <blockquote></blockquote> */
+  /* 引用文 */
   const BLOCKQUOTE = {
     className: "quote",
     begin: /^[><]{1,3}(?=\s+)/,
@@ -79,7 +76,7 @@ export default function (hljs) {
     end: "$",
   };
 
-  /* -, --, --- */
+  /* リスト構造 ul */
   const ULIST = {
     className: "unordered-list",
     begin: /^-{1,3}(?=\s+)/,
@@ -87,7 +84,7 @@ export default function (hljs) {
     excludeEnd: true,
   };
 
-  /* +, ++, +++ */
+  /* リスト構造 ol */
   const OLIST = {
     className: "ordered-list",
     begin: /^+{1,3}(?=\s+)/,
@@ -103,7 +100,7 @@ export default function (hljs) {
     end: /$/,
   };
 
-  /* <pre>...</pre> */
+  /* 整形済みテキスト */
   const PRE = {
     className: "pre",
     begin: /(?=^ )/,
@@ -118,24 +115,28 @@ export default function (hljs) {
     relevance: 0,
   };
 
+  /* 表組み */
   const TABLE = {
     className: "table",
     begin: /^\|.+?\|/,
     end: /$/,
   };
 
+  /* CSV形式の表組み */
   const CSV_TABLE = {
     className: "table",
     begin: /^,.+?,/,
     end: /$/,
   };
 
+  /* 見出し */
   const HEAD = {
     begin: /^\*{1,3}/,
     end: /$/,
     contains: CONTAINABLE,
   };
 
+  /* 水平線 */
   const HORIZONTAL_RULE = {
     begin: /^-{4,}/,
     end: /$/,
@@ -147,63 +148,57 @@ export default function (hljs) {
     begin: /.+~$/,
     end: /$/,
   };
-  // const BLOCK_SYMBOL_RE = /^(~|(>|<|-|\+|:|\*){1,3}|LEFT:|CENTER:|RIGHT:)/;
-  // const INLINE_SYMBOL_RE = /~$/;
-  // const HORIZON_RE = /-{4,}/;
 
-  // const BLOCK_PLUGIN_MODE = {
-  //   scope: "operator",
-  //   variants: [
-  //     { begin: /^#[_A-Za-z0-9]+(\(.*?(,.*?)*?\))?(\{.*?\})?/ },
-  //     { match: BLOCK_SYMBOL_RE },
-  //     { match: HORIZON_RE },
-  //   ],
-  // };
-  // const INLINE_PLUGIN_MODE = {
-  //   scope: "symbol",
-  //   variants: [
-  //     { begin: /&[_a-z0-9]+(\(.*?(,.*?)*?\))?(\{.*?\})?;/ },
-  //     { match: INLINE_SYMBOL_RE },
-  //   ],
-  // };
-  // const PREFORMATTED_MODE = {
-  //   scope: "code",
-  //   begin: /(?=^ )/,
-  //   contains: [
-  //     {
-  //       begin: /^ /,
-  //       end: /\n/,
-  //     },
-  //   ],
-  // };
-  // const BOLD_MODE = {
-  //   scope: "emphasis",
-  //   begin: /''(?!')/,
-  //   end: "''",
-  // };
-  // const ITALIC_MODE = {
-  //   scope: "strong",
-  //   begin: /'{3}/,
-  //   end: "'''",
-  // };
-  // const STRIKED_MODE = {
-  //   scope: "deletion",
-  //   begin: "%%",
-  //   end: "%%",
-  // };
-  // const FOOTNOTE_MODE = {
-  //   scope: "quote",
-  //   begin: "((",
-  //   end: "))",
-  // };
-  // const HYPERLINK_MODE = {
-  //   scope: "link",
-  //   begin: "[[",
-  //   contains: {
-  //     match: /.+?/,
-  //   },
-  //   end: "]]",
-  // };
+  /* 強調・斜体 */
+  const BOLD = {
+    className: "strong",
+    contains: [], // defined later
+    begin: /'{2}(?!')/,
+    end: /'{2}/,
+  };
+  const ITALIC = {
+    className: "emphasis",
+    contains: [], // defined later
+    begin: /'{3}/,
+    end: /'{3}/,
+  };
+
+  /* 取消線 */
+  const STRIKE = {
+    className: "strike",
+    contains: [], // defined later
+    begin: /%{2}/,
+    end: /%{2}/,
+  };
+
+  /**
+   * 注釈
+   * @type {import("highlight.js").Mode}
+   */
+  const FOOTNOTE = {
+    className: "footnote",
+    contains: [], // defined later
+    begin: /\({2}/,
+    end: /\){2}/,
+  };
+
+  /**
+   * WikiName
+   * @type {import("highlight.js").Mode}
+   */
+  const WIKI_NAME = {
+    className: "wiki-name",
+    match: /([A-Z]+[a-z]+){2}/,
+  };
+
+  /**
+   * ページ名
+   * @type {import("highlight.js").Mode}
+   */
+  const PAGE_NAME = {
+    begin: "[[",
+    end: "]]",
+  };
   // const EMOJI_MODE = {
   //   scope: "symbol",
   //   keywords: [
@@ -283,7 +278,7 @@ A mode can reference itself in the contains array by using a special keyword 'se
 }
      */
     contains: [
-      hljs.C_LINE_COMMENT_MODE,
+      hljs.C_LINE_COMMENT_MODE, //コメント行
       //   COMMENT_MODE,
       //   INLINE_PLUGIN_MODE,
       //   BLOCK_PLUGIN_MODE,
