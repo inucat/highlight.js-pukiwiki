@@ -19,10 +19,13 @@ export default function (hljs: HLJSApi): Language {
   const CONTAINABLE: Mode[] = [];
 
   /* ブロック要素 */
+  /**
+   * end: /(?!~$)/
+   */
   /** 段落 */
   const PARAGRAPH: Mode = {
     className: "p",
-    variants: [{ begin: /^~(?=\s+)/, end: /\s+/, excludeEnd: true }],
+    variants: [{ begin: /^~/, excludeEnd: true }],
   };
 
   /** 引用文 */
@@ -36,7 +39,7 @@ export default function (hljs: HLJSApi): Language {
   /** リスト構造 ul */
   const ULIST: Mode = {
     className: "unordered-list",
-    begin: /^-{1,3}(?=\s+)/,
+    begin: /^-{1,3}/,
     end: /\s+/,
     excludeEnd: true,
   };
@@ -44,7 +47,7 @@ export default function (hljs: HLJSApi): Language {
   /** リスト構造 ol */
   const OLIST: Mode = {
     className: "ordered-list",
-    begin: /^+{1,3}(?=\s+)/,
+    begin: /^\+{1,3}/,
     end: /\s+/,
     excludeEnd: true,
   };
@@ -65,9 +68,11 @@ export default function (hljs: HLJSApi): Language {
     contains: [
       {
         begin: /^ /,
-        end: /(\n)$/,
+        end: /\n(?=[\S\n])/, //= \S excludes \n ...
+        excludeEnd: true,
       },
     ],
+    // end: /\n(?=\S)/,
     relevance: 0,
   };
 
@@ -87,6 +92,7 @@ export default function (hljs: HLJSApi): Language {
 
   /** 見出し */
   const HEAD: Mode = {
+    className: "h",
     begin: /^\*{1,3}/,
     end: /$/,
     contains: CONTAINABLE,
@@ -99,10 +105,12 @@ export default function (hljs: HLJSApi): Language {
 
   /** 水平線 */
   const HORIZONTAL_RULE: Mode = {
+    className: "horiz",
     begin: /^-{4,}/,
     end: /$/,
   };
   const DIVIDER: Mode = {
+    className: "divider",
     match: /^#hr/,
   };
 
@@ -156,8 +164,7 @@ export default function (hljs: HLJSApi): Language {
   const BLOCK_WITH_OPTION: Mode = {
     begin: /^#(ref|vote)\(/,
     end: /\)/,
-    contains: [
-    ],
+    contains: [],
   };
 
   /**
@@ -207,8 +214,9 @@ export default function (hljs: HLJSApi): Language {
 
   /** ページ名 */
   const PAGE_NAME: Mode = {
-    begin: "[[",
-    end: "]]",
+    className: "page-name",
+    begin: /\[\[/,
+    end: /\]\]/,
   };
 
   /**
@@ -235,11 +243,13 @@ export default function (hljs: HLJSApi): Language {
 
   /** 文字参照文字 */
   const CHARACTER_ENTITY_REFERENCE: Mode = {
+    className: "cer",
     match: /&[A-Za-z]+;?/,
   };
 
   /** 数値参照文字 */
   const NUMERIC_CHARACTER_REFERENCE: Mode = {
+    className: "ncr",
     match: /&#(\d+|x[a-f\d]+);/,
   };
 
@@ -255,8 +265,16 @@ export default function (hljs: HLJSApi): Language {
      */
     keywords: {
       $pattern: /(&[a-z]+;?|[a-z]\?|&_(date|time|now);)/,
-      customEmoji:
-        "&heart; &smile; &bigsmile; &huh; &oh; &wink; &sad; &worried;",
+      customEmoji: [
+        "&heart",
+        "&smile",
+        "&bigsmile",
+        "&huh",
+        "&oh",
+        "&wink",
+        "&sad",
+        "&worried;",
+      ],
       keyword: [
         "&br;", // 改行
         "&online;", // オンライン表示
@@ -301,6 +319,17 @@ A mode can reference itself in the contains array by using a special keyword 'se
      */
     contains: [
       hljs.C_LINE_COMMENT_MODE, //コメント行
+      PARAGRAPH,
+      ULIST,
+      OLIST,
+      HEAD,
+      HORIZONTAL_RULE,
+      DIVIDER,
+      BOLD,
+      PAGE_NAME,
+      CHARACTER_ENTITY_REFERENCE,
+      NUMERIC_CHARACTER_REFERENCE,
+      PRE,
     ],
   };
 }
