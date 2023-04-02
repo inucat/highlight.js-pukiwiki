@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+var modes_1 = require("../lib/modes");
 /**
  * Defines a function to return a language definition object.
  * @param hljs
@@ -7,138 +8,125 @@ exports.__esModule = true;
  */
 function default_1(hljs) {
     var CONTAINABLE = [];
-    /* ブロック要素 */
-    /**
-     * end: /(?!~$)/
-     */
-    /** 段落 */
-    var PARAGRAPH = {
-        className: "p",
-        variants: [{ begin: /^~/, excludeEnd: true }]
-    };
-    /** 引用文 */
-    var BLOCKQUOTE = {
-        className: "quote",
-        begin: /^[><]{1,3}(?=\s+)/,
-        contains: CONTAINABLE,
-        end: "$"
-    };
-    /** リスト構造 ul */
-    var ULIST = {
-        className: "unordered-list",
-        begin: /^-{1,3}/,
-        end: /\s+/,
-        excludeEnd: true
-    };
-    /** リスト構造 ol */
-    var OLIST = {
-        className: "ordered-list",
-        begin: /^\+{1,3}/,
-        end: /\s+/,
-        excludeEnd: true
-    };
-    /** 定義リスト */
-    var DEF = {
-        className: "def",
-        begin: /^:{1,3}.*?\|/,
-        end: /$/
-    };
-    /** 整形済みテキスト */
-    var PRE = {
-        className: "pre",
+    var INLINE_ELEMENTS = [];
+    /* ブロック要素 ***************************************************************/
+    var PREFORMATTED = {
+        scope: "code",
         begin: /(?=^ )/,
-        // use contains to gobble up multiple lines to allow the block to be whatever size
-        // but only have a single open/close tag vs one per line
         contains: [
             {
                 begin: /^ /,
                 end: /\n(?=[\S\n])/,
                 excludeEnd: true
             },
-        ],
-        // end: /\n(?=\S)/,
-        relevance: 0
+        ]
+    };
+    var HORIZON = {
+        scope: "operator",
+        begin: /^-{4,}/
+    };
+    /**
+     * end: /(?!~$)/
+     */
+    /** 段落 */
+    var PARAGRAPH = {
+        scope: "operator",
+        variants: [{ begin: /^~/, excludeEnd: true }]
+    };
+    /** 引用文 */
+    var BLOCKQUOTE = {
+        scope: "quote",
+        begin: /^[><]{1,3}(?=\s+)/,
+        contains: CONTAINABLE,
+        end: "$"
+    };
+    /** リスト構造 ul, ol */
+    var LISTING = {
+        scope: "bullet",
+        begin: /^[-+]{1,3}/,
+        end: /(?<!~)$/,
+        excludeEnd: true,
+        contains: INLINE_ELEMENTS
+    };
+    /** 定義リスト */
+    var DEF = {
+        scope: "bullet",
+        begin: /^:{1,3}.*?\|/,
+        end: /$/
     };
     /** 表組み */
     var TABLE = {
-        className: "table",
+        scope: "table",
         begin: /^\|.+?\|/,
         end: /$/
     };
     /** CSV形式の表組み */
     var CSV_TABLE = {
-        className: "table",
+        scope: "table",
         begin: /^,.+?,/,
         end: /$/
     };
     /** 見出し */
     var HEAD = {
-        className: "h",
+        scope: "section",
         begin: /^\*{1,3}/,
         end: /$/,
         contains: CONTAINABLE
     };
     /** 左寄せ・センタリング・右寄せ */
     var ALIGN = {
+        scope: "keyword",
         match: /^(LEFT|CENTER|RIGHT):/
     };
-    /** 水平線 */
-    var HORIZONTAL_RULE = {
-        className: "horiz",
-        begin: /^-{4,}/,
-        end: /$/
-    };
-    var DIVIDER = {
-        className: "divider",
-        match: /^#hr/
-    };
-    /** 行間開け */
-    var VERTICAL_SPACING = {
-        match: /^#br/
-    };
-    /** テキストの回り込みの解除 */
-    var WRAP_CLEAR = {
-        match: /^#br/
-    };
-    /** フォーム */
-    var FORM = {
+    /** Block element plugins */
+    var BLOCK_PLUGIN = {
         variants: [
             {
-                match: /^#comment/
+                match: "^#" + modes_1.IDENT_RE,
+                scope: "title"
             },
             {
-                match: /^#pcomment/
-            },
-            {
-                match: /^#article/
+                begin: [/^#/, modes_1.IDENT_RE, /\(/],
+                beginScope: { 1: "title", 2: "title", 3: "punctuation" },
+                contains: [
+                    { match: /[^),]+/, scope: "params" },
+                    { match: /,/, scope: "punctuation" },
+                ],
+                end: /\)/,
+                endScope: "punctuation"
             },
         ]
     };
-    var VOTE_FORM = {};
-    /* インライン要素 */
-    /** 改行 */
-    var NEWLINE = {
+    /** インライン要素 ************************************************************/
+    var LINE_BREAK = {
+        scope: "operator",
         match: /~$/
     };
-    /** 強調・斜体 */
+    INLINE_ELEMENTS.push(LINE_BREAK);
     var BOLD = {
-        className: "strong",
-        contains: [],
+        scope: "strong",
         begin: /'{2}(?!')/,
         end: /'{2}/
     };
     var ITALIC = {
-        className: "emphasis",
-        contains: [],
+        scope: "emphasis",
         begin: /'{3}/,
         end: /'{3}/
     };
-    /** 添付ファイル・画像の貼り付け, 簡易投票フォーム */
-    var BLOCK_WITH_OPTION = {
-        begin: /^#(ref|vote)\(/,
-        end: /\)/,
-        contains: []
+    var STRIKE_OUT = {
+        scope: "deletion",
+        begin: /%%/,
+        end: /%%/
     };
+    INLINE_ELEMENTS.push(STRIKE_OUT);
+    INLINE_ELEMENTS.push(BOLD);
+    INLINE_ELEMENTS.push(ITALIC);
+    var FOOTNOTE = {
+        scope: "footnote",
+        begin: /\(\(/,
+        end: /\)\)/
+    };
+    INLINE_ELEMENTS.push(FOOTNOTE);
     /**
      * 文字サイズ
      * 文字色
@@ -147,45 +135,29 @@ function default_1(hljs) {
      * アンカーの設定
      * カウンタ表示
      */
-    var INLINE_WITH_OPTION = {
+    var INLINE_PLUGIN = {
         begin: /^&(ref|vote)\(/,
-        end: /\)/,
-        contains: [
-        // modes.BLOCK_COMMENT,
-        // modes.HEXCOLOR,
-        // modes.IMPORTANT,
-        // modes.CSS_NUMBER_MODE,
-        // ...STRINGS,
-        // // needed to highlight these as strings and to avoid issues with
-        // // illegal characters that might be inside urls that would tigger the
-        // // languages illegal stack
-        ]
+        end: /\)/
     };
-    /** 取消線 */
-    var STRIKE = {
-        className: "strike",
-        contains: [],
-        begin: /%{2}/,
-        end: /%{2}/
+    INLINE_ELEMENTS.push(INLINE_PLUGIN);
+    /** Date */
+    var LAST_MODIFIED_DATE = {
+        match: /&lastmod\(.+\);/
     };
-    /** 注釈 */
-    var FOOTNOTE = {
-        className: "footnote",
-        contains: [],
-        begin: /\({2}/,
-        end: /\){2}/
-    };
-    /** WikiName */
+    INLINE_ELEMENTS.push(LAST_MODIFIED_DATE);
     var WIKI_NAME = {
-        className: "wiki-name",
+        scope: "link",
         match: /([A-Z]+[a-z]+){2}/
     };
-    /** ページ名 */
+    INLINE_ELEMENTS.push(WIKI_NAME);
     var PAGE_NAME = {
-        className: "page-name",
+        scope: "link",
         begin: /\[\[/,
-        end: /\]\]/
+        beginScope: "operator",
+        end: /\]\]/,
+        endScope: "operator"
     };
+    INLINE_ELEMENTS.push(PAGE_NAME);
     /**
      * InterWiki
      * [[ページ名#アンカー名]]
@@ -202,20 +174,21 @@ function default_1(hljs) {
      * [[エイリアス名>ページ名#アンカー名]]
      * [[エイリアス名>#アンカー名]]
      */
-    /** Date */
-    var LAST_MODIFIED_DATE = {
-        match: /&lastmod\(.+\);/
-    };
+    // link
+    INLINE_ELEMENTS.push();
     /** 文字参照文字 */
-    var CHARACTER_ENTITY_REFERENCE = {
-        className: "cer",
-        match: /&[A-Za-z]+;?/
+    var CHARACTER_REFERENCE = {
+        scope: "char.escape",
+        variants: [
+            {
+                match: /&[A-Za-z]+;?/
+            },
+            {
+                match: /&#(\d+|x[a-f\d]+);/
+            },
+        ]
     };
-    /** 数値参照文字 */
-    var NUMERIC_CHARACTER_REFERENCE = {
-        className: "ncr",
-        match: /&#(\d+|x[a-f\d]+);/
-    };
+    INLINE_ELEMENTS.push(CHARACTER_REFERENCE);
     return {
         /* Target language has the name "PukiWiki". */
         name: "PukiWiki",
@@ -227,13 +200,13 @@ function default_1(hljs) {
         keywords: {
             $pattern: /(&[a-z]+;?|[a-z]\?|&_(date|time|now);)/,
             customEmoji: [
-                "&heart",
-                "&smile",
-                "&bigsmile",
-                "&huh",
-                "&oh",
-                "&wink",
-                "&sad",
+                "&heart;",
+                "&smile;",
+                "&bigsmile;",
+                "&huh;",
+                "&oh;",
+                "&wink;",
+                "&sad;",
                 "&worried;",
             ],
             keyword: [
@@ -255,41 +228,17 @@ function default_1(hljs) {
                 "&lastmod;",
             ]
         },
-        /**
-    Sub-modes
-    
-    Sub-modes are listed in the contains attribute:
-    
-    {
-      keywords: '...',
-      contains: [
-        hljs.QUOTE_STRING_MODE,
-        hljs.C_LINE_COMMENT,
-        { ... custom mode definition ... }
-      ]
-    }
-    
-    A mode can reference itself in the contains array by using a special keyword 'self’. This is commonly used to define nested modes:
-    
-    {
-      scope: 'object',
-      begin: /\{/, end: /\}/,
-      contains: [hljs.QUOTE_STRING_MODE, 'self']
-    }
-         */
         contains: [
             hljs.C_LINE_COMMENT_MODE,
             PARAGRAPH,
-            ULIST,
-            OLIST,
+            LISTING,
+            BLOCK_PLUGIN,
             HEAD,
-            HORIZONTAL_RULE,
-            DIVIDER,
+            HORIZON,
             BOLD,
             PAGE_NAME,
-            CHARACTER_ENTITY_REFERENCE,
-            NUMERIC_CHARACTER_REFERENCE,
-            PRE,
+            CHARACTER_REFERENCE,
+            PREFORMATTED,
         ]
     };
 }

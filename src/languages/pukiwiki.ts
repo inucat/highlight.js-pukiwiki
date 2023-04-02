@@ -10,6 +10,7 @@ Website: https://pukiwiki.osdn.jp/
  * @see https://pukiwiki.osdn.jp/?FormattingRules
  */
 import { HLJSApi, Language, Mode } from "highlight.js";
+import { IDENT_RE } from "../lib/modes";
 /**
  * Defines a function to return a language definition object.
  * @param hljs
@@ -17,54 +18,12 @@ import { HLJSApi, Language, Mode } from "highlight.js";
  */
 export default function (hljs: HLJSApi): Language {
   const CONTAINABLE: Mode[] = [];
+  const INLINE_ELEMENTS: Mode[] = [];
 
-  /* ブロック要素 */
-  /**
-   * end: /(?!~$)/
-   */
-  /** 段落 */
-  const PARAGRAPH: Mode = {
-    className: "p",
-    variants: [{ begin: /^~/, excludeEnd: true }],
-  };
-
-  /** 引用文 */
-  const BLOCKQUOTE: Mode = {
-    className: "quote",
-    begin: /^[><]{1,3}(?=\s+)/,
-    contains: CONTAINABLE,
-    end: "$",
-  };
-
-  /** リスト構造 ul */
-  const ULIST: Mode = {
-    className: "unordered-list",
-    begin: /^-{1,3}/,
-    end: /\s+/,
-    excludeEnd: true,
-  };
-
-  /** リスト構造 ol */
-  const OLIST: Mode = {
-    className: "ordered-list",
-    begin: /^\+{1,3}/,
-    end: /\s+/,
-    excludeEnd: true,
-  };
-
-  /** 定義リスト */
-  const DEF: Mode = {
-    className: "def",
-    begin: /^:{1,3}.*?\|/,
-    end: /$/,
-  };
-
-  /** 整形済みテキスト */
-  const PRE: Mode = {
-    className: "pre",
+  /* ブロック要素 ***************************************************************/
+  const PREFORMATTED: Mode = {
+    scope: "code",
     begin: /(?=^ )/,
-    // use contains to gobble up multiple lines to allow the block to be whatever size
-    // but only have a single open/close tag vs one per line
     contains: [
       {
         begin: /^ /,
@@ -72,27 +31,63 @@ export default function (hljs: HLJSApi): Language {
         excludeEnd: true,
       },
     ],
-    // end: /\n(?=\S)/,
-    relevance: 0,
+  };
+
+  const HORIZON: Mode = {
+    scope: "operator",
+    begin: /^-{4,}/,
+  };
+
+  /**
+   * end: /(?!~$)/
+   */
+  /** 段落 */
+  const PARAGRAPH: Mode = {
+    scope: "operator",
+    variants: [{ begin: /^~/, excludeEnd: true }],
+  };
+
+  /** 引用文 */
+  const BLOCKQUOTE: Mode = {
+    scope: "quote",
+    begin: /^[><]{1,3}(?=\s+)/,
+    contains: CONTAINABLE,
+    end: "$",
+  };
+
+  /** リスト構造 ul, ol */
+  const LISTING: Mode = {
+    scope: "bullet",
+    begin: /^[-+]{1,3}/,
+    end: /(?<!~)$/,
+    excludeEnd: true,
+    contains: INLINE_ELEMENTS,
+  };
+
+  /** 定義リスト */
+  const DEF: Mode = {
+    scope: "bullet",
+    begin: /^:{1,3}.*?\|/,
+    end: /$/,
   };
 
   /** 表組み */
   const TABLE: Mode = {
-    className: "table",
+    scope: "table",
     begin: /^\|.+?\|/,
     end: /$/,
   };
 
   /** CSV形式の表組み */
   const CSV_TABLE: Mode = {
-    className: "table",
+    scope: "table",
     begin: /^,.+?,/,
     end: /$/,
   };
 
   /** 見出し */
   const HEAD: Mode = {
-    className: "h",
+    scope: "section",
     begin: /^\*{1,3}/,
     end: /$/,
     contains: CONTAINABLE,
@@ -100,72 +95,65 @@ export default function (hljs: HLJSApi): Language {
 
   /** 左寄せ・センタリング・右寄せ */
   const ALIGN: Mode = {
+    scope: "keyword",
     match: /^(LEFT|CENTER|RIGHT):/,
   };
 
-  /** 水平線 */
-  const HORIZONTAL_RULE: Mode = {
-    className: "horiz",
-    begin: /^-{4,}/,
-    end: /$/,
-  };
-  const DIVIDER: Mode = {
-    className: "divider",
-    match: /^#hr/,
-  };
-
-  /** 行間開け */
-  const VERTICAL_SPACING: Mode = {
-    match: /^#br/,
-  };
-
-  /** テキストの回り込みの解除 */
-  const WRAP_CLEAR: Mode = {
-    match: /^#br/,
-  };
-
-  /** フォーム */
-  const FORM: Mode = {
+  /** Block element plugins */
+  const BLOCK_PLUGIN: Mode = {
     variants: [
       {
-        match: /^#comment/,
+        match: "^#" + IDENT_RE,
+        scope: "title",
       },
       {
-        match: /^#pcomment/,
-      },
-      {
-        match: /^#article/,
+        begin: [/^#/, IDENT_RE, /\(/],
+        beginScope: { 1: "title", 2: "title", 3: "punctuation" },
+        contains: [
+          { match: /[^),]+/, scope: "params" },
+          { match: /,/, scope: "punctuation" },
+        ],
+        end: /\)/,
+        endScope: "punctuation",
       },
     ],
   };
-  const VOTE_FORM: Mode = {};
 
-  /* インライン要素 */
-  /** 改行 */
-  const NEWLINE: Mode = {
+  /** インライン要素 ************************************************************/
+  const LINE_BREAK: Mode = {
+    scope: "operator",
     match: /~$/,
   };
+  INLINE_ELEMENTS.push(LINE_BREAK);
 
-  /** 強調・斜体 */
   const BOLD: Mode = {
-    className: "strong",
-    contains: [], // defined later
+    scope: "strong",
     begin: /'{2}(?!')/,
     end: /'{2}/,
   };
+
   const ITALIC: Mode = {
-    className: "emphasis",
-    contains: [], // defined later
+    scope: "emphasis",
     begin: /'{3}/,
     end: /'{3}/,
   };
 
-  /** 添付ファイル・画像の貼り付け, 簡易投票フォーム */
-  const BLOCK_WITH_OPTION: Mode = {
-    begin: /^#(ref|vote)\(/,
-    end: /\)/,
-    contains: [],
+  const STRIKE_OUT: Mode = {
+    scope: "deletion",
+    begin: /%%/,
+    end: /%%/,
   };
+
+  INLINE_ELEMENTS.push(STRIKE_OUT);
+  INLINE_ELEMENTS.push(BOLD);
+  INLINE_ELEMENTS.push(ITALIC);
+
+  const FOOTNOTE: Mode = {
+    scope: "footnote",
+    begin: /\(\(/,
+    end: /\)\)/,
+  };
+  INLINE_ELEMENTS.push(FOOTNOTE);
 
   /**
    * 文字サイズ
@@ -175,49 +163,31 @@ export default function (hljs: HLJSApi): Language {
    * アンカーの設定
    * カウンタ表示
    */
-  const INLINE_WITH_OPTION: Mode = {
+  const INLINE_PLUGIN: Mode = {
     begin: /^&(ref|vote)\(/,
     end: /\)/,
-    contains: [
-      // modes.BLOCK_COMMENT,
-      // modes.HEXCOLOR,
-      // modes.IMPORTANT,
-      // modes.CSS_NUMBER_MODE,
-      // ...STRINGS,
-      // // needed to highlight these as strings and to avoid issues with
-      // // illegal characters that might be inside urls that would tigger the
-      // // languages illegal stack
-    ],
   };
-
-  /** 取消線 */
-  const STRIKE: Mode = {
-    className: "strike",
-    contains: [], // defined later
-    begin: /%{2}/,
-    end: /%{2}/,
+  INLINE_ELEMENTS.push(INLINE_PLUGIN);
+  /** Date */
+  const LAST_MODIFIED_DATE: Mode = {
+    match: /&lastmod\(.+\);/,
   };
+  INLINE_ELEMENTS.push(LAST_MODIFIED_DATE);
 
-  /** 注釈 */
-  const FOOTNOTE: Mode = {
-    className: "footnote",
-    contains: [], // defined later
-    begin: /\({2}/,
-    end: /\){2}/,
-  };
-
-  /** WikiName */
   const WIKI_NAME: Mode = {
-    className: "wiki-name",
+    scope: "link",
     match: /([A-Z]+[a-z]+){2}/,
   };
+  INLINE_ELEMENTS.push(WIKI_NAME);
 
-  /** ページ名 */
   const PAGE_NAME: Mode = {
-    className: "page-name",
+    scope: "link",
     begin: /\[\[/,
+    beginScope: "operator",
     end: /\]\]/,
+    endScope: "operator",
   };
+  INLINE_ELEMENTS.push(PAGE_NAME);
 
   /**
    * InterWiki
@@ -235,23 +205,22 @@ export default function (hljs: HLJSApi): Language {
    * [[エイリアス名>ページ名#アンカー名]]
    * [[エイリアス名>#アンカー名]]
    */
-
-  /** Date */
-  const LAST_MODIFIED_DATE: Mode = {
-    match: /&lastmod\(.+\);/,
-  };
+  // link
+  INLINE_ELEMENTS.push();
 
   /** 文字参照文字 */
-  const CHARACTER_ENTITY_REFERENCE: Mode = {
-    className: "cer",
-    match: /&[A-Za-z]+;?/,
+  const CHARACTER_REFERENCE: Mode = {
+    scope: "char.escape",
+    variants: [
+      {
+        match: /&[A-Za-z]+;?/,
+      },
+      {
+        match: /&#(\d+|x[a-f\d]+);/,
+      },
+    ],
   };
-
-  /** 数値参照文字 */
-  const NUMERIC_CHARACTER_REFERENCE: Mode = {
-    className: "ncr",
-    match: /&#(\d+|x[a-f\d]+);/,
-  };
+  INLINE_ELEMENTS.push(CHARACTER_REFERENCE);
 
   return {
     /* Target language has the name "PukiWiki". */
@@ -266,13 +235,13 @@ export default function (hljs: HLJSApi): Language {
     keywords: {
       $pattern: /(&[a-z]+;?|[a-z]\?|&_(date|time|now);)/,
       customEmoji: [
-        "&heart",
-        "&smile",
-        "&bigsmile",
-        "&huh",
-        "&oh",
-        "&wink",
-        "&sad",
+        "&heart;",
+        "&smile;",
+        "&bigsmile;",
+        "&huh;",
+        "&oh;",
+        "&wink;",
+        "&sad;",
         "&worried;",
       ],
       keyword: [
@@ -295,41 +264,17 @@ export default function (hljs: HLJSApi): Language {
       ],
     },
 
-    /**
-Sub-modes
-
-Sub-modes are listed in the contains attribute:
-
-{
-  keywords: '...',
-  contains: [
-    hljs.QUOTE_STRING_MODE,
-    hljs.C_LINE_COMMENT,
-    { ... custom mode definition ... }
-  ]
-}
-
-A mode can reference itself in the contains array by using a special keyword 'self’. This is commonly used to define nested modes:
-
-{
-  scope: 'object',
-  begin: /\{/, end: /\}/,
-  contains: [hljs.QUOTE_STRING_MODE, 'self']
-}
-     */
     contains: [
       hljs.C_LINE_COMMENT_MODE, //コメント行
       PARAGRAPH,
-      ULIST,
-      OLIST,
+      LISTING,
+      BLOCK_PLUGIN,
       HEAD,
-      HORIZONTAL_RULE,
-      DIVIDER,
+      HORIZON,
       BOLD,
       PAGE_NAME,
-      CHARACTER_ENTITY_REFERENCE,
-      NUMERIC_CHARACTER_REFERENCE,
-      PRE,
+      CHARACTER_REFERENCE,
+      PREFORMATTED,
     ],
   };
 }
