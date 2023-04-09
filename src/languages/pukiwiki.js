@@ -31,54 +31,44 @@ function default_1(hljs) {
     };
     var HORIZON = {
         scope: "operator",
-        begin: /^-{4,}/,
+        match: /^-{4,}/,
     };
     var PARAGRAPH = {
         scope: "operator",
-        begin: /^~/,
-    };
-    var QUOTE_BLOCK = {
-        scope: "quote",
-        begin: /^[><]{1,3}/,
-        contains: CONTAINABLE,
-        end: "$",
-    };
-    /**
-     * end: /(?!~$)/
-     */
-    /** リスト構造 ul, ol */
-    var LISTING = {
-        scope: "bullet",
-        begin: /^(-{1,3}|\+{1,3})/,
-        end: /(?<!~)$/,
-        excludeEnd: true,
-        contains: INLINE_ELEMENTS,
-    };
-    /** 定義リスト */
-    var DEF = {
-        scope: "bullet",
-        begin: /^:{1,3}.*?\|/,
-        end: /$/,
-    };
-    var TABLE = {
-        scope: "tag",
-        begin: /^\|(.+?\|)+/,
-        end: /$/,
-    };
-    var CSV_TABLE = {
-        scope: "tag",
-        begin: /^(,.*)+/,
-        end: /$/,
+        match: /^~/,
     };
     var HEAD = {
         scope: "section",
         begin: /^\*{1,3}/,
         end: /$/,
-        contains: CONTAINABLE,
     };
     var ALIGN = {
         scope: "keyword",
         match: /^(LEFT|CENTER|RIGHT):/,
+    };
+    var QUOTE_BLOCK = {
+        scope: "quote",
+        begin: /^(>{1,3}|<{1,3})/,
+        end: /$/,
+    };
+    var LISTING = {
+        scope: "bullet",
+        begin: /^(-{1,3}|\+{1,3})/,
+    };
+    /** 定義リスト */
+    var DEF = {
+        scope: "bullet",
+        begin: /^:{1,3}.*\|/,
+    };
+    var TABLE = {
+        scope: "doctag",
+        begin: /^\|(.+?\|)+/,
+        end: /$/,
+    };
+    var CSV_TABLE = {
+        scope: "doctag",
+        begin: /^(,.*)+/,
+        end: /$/,
     };
     var BLOCK_PLUGIN = {
         variants: [
@@ -103,7 +93,6 @@ function default_1(hljs) {
         scope: "operator",
         match: /~$/,
     };
-    INLINE_ELEMENTS.push(LINE_BREAK);
     var BOLD = {
         scope: "strong",
         begin: /'{2}(?!')/,
@@ -116,41 +105,34 @@ function default_1(hljs) {
     };
     var STRIKE_OUT = {
         scope: "deletion",
-        begin: /%%.*/,
+        begin: /%%/,
         end: /%%/,
+        contains: INLINE_ELEMENTS,
     };
-    INLINE_ELEMENTS.push(STRIKE_OUT);
-    INLINE_ELEMENTS.push(BOLD);
-    INLINE_ELEMENTS.push(ITALIC);
     var FOOTNOTE = {
         scope: "footnote",
-        begin: /\(\(.*/,
+        begin: /\(\(/,
         end: /\)\)/,
     };
-    INLINE_ELEMENTS.push(FOOTNOTE);
     /**
      * 文字色 HEXCOLOR
      * ルビ構造 &xxx( yyy ){ zzz };
      */
     var INLINE_PLUGIN = {
-        scope: "title.function",
-        begin: /^&/ + modes_1.IDENT_RE + /\(.*/,
-        end: /\)/,
+        scope: "variable",
+        begin: /^&[a-zA-Z]\w*\(/,
+        end: /\);/,
     };
-    INLINE_ELEMENTS.push(INLINE_PLUGIN);
     var WIKI_NAME = {
         scope: "link",
-        match: /([A-Z]+[a-z]+){2}/,
+        match: /([A-Z][a-z]+){2,}/,
     };
-    INLINE_ELEMENTS.push(WIKI_NAME);
-    var PAGE_NAME = {
-        scope: "link",
-        begin: /\[\[/,
-        beginScope: "operator",
-        end: /\]\]/,
-        endScope: "operator",
-    };
-    INLINE_ELEMENTS.push(PAGE_NAME);
+    /*
+      keywords: {
+        $pattern: /[a-z]\?/,
+        keyword: ["date?", "time?", "now?"],
+      },
+     */
     /**
      * InterWiki
      * [[ページ名#アンカー名]]
@@ -167,56 +149,28 @@ function default_1(hljs) {
      * [[エイリアス名>ページ名#アンカー名]]
      * [[エイリアス名>#アンカー名]]
      */
-    INLINE_ELEMENTS.push();
-    var CHARACTER_REFERENCE = {
-        scope: "char.escape",
-        variants: [
-            {
-                match: /&[A-Za-z]+?;/,
-            },
-            {
-                match: /&#(\d+|x[a-f\d]+);/,
-            },
-        ],
+    var PAGE_NAME = {
+        scope: "link",
+        begin: /\[\[/,
+        beginScope: "operator",
+        end: /\]\]/,
+        endScope: "operator",
     };
-    INLINE_ELEMENTS.push(CHARACTER_REFERENCE);
+    var CHARACTER_REFERENCE = {
+        scope: "built_in",
+        match: /&#(\d+|x[a-f\d]+);/,
+    };
     return {
         name: "PukiWiki",
-        case_insensitive: true,
-        keywords: {
-            $pattern: /[a-z]\?/,
-            // customEmoji: [
-            //   "&heart;",
-            //   "&smile;",
-            //   "&bigsmile;",
-            //   "&huh;",
-            //   "&oh;",
-            //   "&wink;",
-            //   "&sad;",
-            //   "&worried;",
-            // ],
-            keyword: [
-                // "&br;", // 改行
-                // "&online;", // オンライン表示
-                // "&version;", // バージョン表示
-                // "&t;", // タブコード
-                // "&page;", // ページ名置換文字
-                // "&fpage;",
-                // "&date;", // 日時置換文字
-                // "&time;",
-                // "&now;",
-                "date?",
-                "time?",
-                "now?",
-                // "&_date;",
-                // "&_time;",
-                // "&_now;",
-                // "&lastmod;",
-            ],
-        },
+        /**
+         * PukiWiki keywords are actually case-insensitive, but some syntax cares
+         * casing (e.g. WikiName).
+         */
+        case_insensitive: false,
         contains: [
             hljs.C_LINE_COMMENT_MODE,
             PARAGRAPH,
+            HORIZON,
             LISTING,
             DEF,
             TABLE,
@@ -225,11 +179,16 @@ function default_1(hljs) {
             QUOTE_BLOCK,
             BLOCK_PLUGIN,
             HEAD,
-            HORIZON,
+            ITALIC,
             BOLD,
+            STRIKE_OUT,
             PAGE_NAME,
+            INLINE_PLUGIN,
             CHARACTER_REFERENCE,
             PREFORMATTED,
+            LINE_BREAK,
+            FOOTNOTE,
+            WIKI_NAME,
         ],
     };
 }

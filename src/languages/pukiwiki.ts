@@ -35,65 +35,50 @@ export default function (hljs: HLJSApi): Language {
       },
     ],
   };
-
   const HORIZON: Mode = {
     scope: "operator",
-    begin: /^-{4,}/,
+    match: /^-{4,}/,
   };
-
   const PARAGRAPH: Mode = {
     scope: "operator",
-    begin: /^~/,
+    match: /^~/,
   };
-
+  const HEAD: Mode = {
+    scope: "section",
+    begin: /^\*{1,3}/,
+    end: /$/,
+  };
+  const ALIGN: Mode = {
+    scope: "keyword",
+    match: /^(LEFT|CENTER|RIGHT):/,
+  };
   const QUOTE_BLOCK: Mode = {
     scope: "quote",
-    begin: /^[><]{1,3}/,
-    contains: CONTAINABLE,
-    end: "$",
+    begin: /^(>{1,3}|<{1,3})/,
+    end: /^$/,
   };
 
-  /**
-   * end: /(?!~$)/
-   */
-  /** リスト構造 ul, ol */
   const LISTING: Mode = {
     scope: "bullet",
     begin: /^(-{1,3}|\+{1,3})/,
-    end: /(?<!~)$/,
-    excludeEnd: true,
-    contains: INLINE_ELEMENTS,
   };
 
   /** 定義リスト */
   const DEF: Mode = {
     scope: "bullet",
-    begin: /^:{1,3}.*?\|/,
-    end: /$/,
+    begin: /^:{1,3}.*\|/,
   };
 
   const TABLE: Mode = {
-    scope: "tag",
+    scope: "doctag",
     begin: /^\|(.+?\|)+/,
     end: /$/,
   };
 
   const CSV_TABLE: Mode = {
-    scope: "tag",
+    scope: "doctag",
     begin: /^(,.*)+/,
     end: /$/,
-  };
-
-  const HEAD: Mode = {
-    scope: "section",
-    begin: /^\*{1,3}/,
-    end: /$/,
-    contains: CONTAINABLE,
-  };
-
-  const ALIGN: Mode = {
-    scope: "keyword",
-    match: /^(LEFT|CENTER|RIGHT):/,
   };
 
   const BLOCK_PLUGIN: Mode = {
@@ -120,53 +105,46 @@ export default function (hljs: HLJSApi): Language {
     scope: "operator",
     match: /~$/,
   };
-  INLINE_ELEMENTS.push(LINE_BREAK);
-
   const BOLD: Mode = {
     scope: "strong",
     begin: /'{2}(?!')/,
+    contains: INLINE_ELEMENTS,
     end: /'{2}/,
   };
-
   const ITALIC: Mode = {
     scope: "emphasis",
     begin: /'{3}/,
+    contains: INLINE_ELEMENTS,
     end: /'{3}/,
   };
-
   const STRIKE_OUT: Mode = {
     scope: "deletion",
-    begin: /%%.*/,
+    begin: /%%/,
+    contains: INLINE_ELEMENTS,
     end: /%%/,
   };
-
-  INLINE_ELEMENTS.push(STRIKE_OUT);
-  INLINE_ELEMENTS.push(BOLD);
-  INLINE_ELEMENTS.push(ITALIC);
-
   const FOOTNOTE: Mode = {
     scope: "footnote",
-    begin: /\(\(.*/,
+    begin: /\(\(/,
+    contains: INLINE_ELEMENTS,
     end: /\)\)/,
   };
-  INLINE_ELEMENTS.push(FOOTNOTE);
-
-  /**
-   * 文字色 HEXCOLOR
-   * ルビ構造 &xxx( yyy ){ zzz };
-   */
-  const INLINE_PLUGIN: Mode = {
-    scope: "title.function",
-    begin: /^&/ + IDENT_RE + /\(.*/,
-    end: /\)/,
-  };
-  INLINE_ELEMENTS.push(INLINE_PLUGIN);
-
   const WIKI_NAME: Mode = {
     scope: "link",
-    match: /([A-Z]+[a-z]+){2}/,
+    match: /([A-Z][a-z]+){2,}/,
   };
-  INLINE_ELEMENTS.push(WIKI_NAME);
+
+  const INLINE_PLUGIN: Mode = {
+    scope: "variable",
+    begin: /^&[a-zA-Z]\w*/,
+    contains: [
+      {
+        begin: /\(/,
+        end: /\)/,
+      },
+    ],
+    end: /;/,
+  };
 
   const PAGE_NAME: Mode = {
     scope: "link",
@@ -175,78 +153,25 @@ export default function (hljs: HLJSApi): Language {
     end: /\]\]/,
     endScope: "operator",
   };
-  INLINE_ELEMENTS.push(PAGE_NAME);
 
-  /**
-   * InterWiki
-   * [[ページ名#アンカー名]]
-   * [[InterWikiName:ページ名]]
-   * [[InterWikiName:ページ名#アンカー名]]
-   *
-   * リンク
-   * [[リンク名:URL]]
-   *
-   * エイリアス
-   * [[エイリアス名>ページ名]]
-   * 行中のページ名形式の文字列の中で、> で2つの文字列を区切るとエイリアスになります。 > の前にはエイリアス名を、> の後ろにはページ名を記述します。
-   * エイリアスはPukiWiki内のページ名とは別のエイリアス名で、指定したページへのリンクを貼ります。
-   * [[エイリアス名>ページ名#アンカー名]]
-   * [[エイリアス名>#アンカー名]]
-   */
-  INLINE_ELEMENTS.push();
-
-  const CHARACTER_REFERENCE: Mode = {
-    scope: "char.escape",
-    variants: [
-      {
-        match: /&[A-Za-z]+?;/,
-      },
-      {
-        match: /&#(\d+|x[a-f\d]+);/,
-      },
-    ],
+  const NUMERIC_CHARACTER_REFERENCE: Mode = {
+    scope: "built_in",
+    match: /&#(\d+|x[a-f\d]+);/,
   };
-  INLINE_ELEMENTS.push(CHARACTER_REFERENCE);
 
   return {
     name: "PukiWiki",
-
-    case_insensitive: true,
-
-    keywords: {
-      $pattern: /[a-z]\?/,
-      // customEmoji: [
-      //   "&heart;",
-      //   "&smile;",
-      //   "&bigsmile;",
-      //   "&huh;",
-      //   "&oh;",
-      //   "&wink;",
-      //   "&sad;",
-      //   "&worried;",
-      // ],
-      keyword: [
-        // "&br;", // 改行
-        // "&online;", // オンライン表示
-        // "&version;", // バージョン表示
-        // "&t;", // タブコード
-        // "&page;", // ページ名置換文字
-        // "&fpage;",
-        // "&date;", // 日時置換文字
-        // "&time;",
-        // "&now;",
-        "date?",
-        "time?",
-        "now?",
-        // "&_date;",
-        // "&_time;",
-        // "&_now;",
-        // "&lastmod;",
-      ],
-    },
-
+    /**
+     * PukiWiki keywords are case-insensitive, but some syntax cares casing
+     * (e.g. WikiName).
+     */
+    case_insensitive: false,
     contains: [
       hljs.C_LINE_COMMENT_MODE, //コメント行
+      HORIZON,
+      BLOCK_PLUGIN,
+      INLINE_PLUGIN,
+      NUMERIC_CHARACTER_REFERENCE,
       PARAGRAPH,
       LISTING,
       DEF,
@@ -254,13 +179,84 @@ export default function (hljs: HLJSApi): Language {
       CSV_TABLE,
       ALIGN,
       QUOTE_BLOCK,
-      BLOCK_PLUGIN,
       HEAD,
-      HORIZON,
+      ITALIC,
       BOLD,
+      STRIKE_OUT,
       PAGE_NAME,
-      CHARACTER_REFERENCE,
       PREFORMATTED,
+      LINE_BREAK,
+      FOOTNOTE,
+      WIKI_NAME,
     ],
   };
 }
+/*
+テキスト整形のルール
+ブロック要素
+    段落
+      ~__I__
+    引用文
+      >{1,3}__I__
+      <{1,3}__I__
+    リスト構造
+      -{1,3}__I__
+      +{1,3}__I__
+      :{1,3}__I__|__I__
+    整形済みテキスト
+      &nbsp;
+    表組み
+      |(__CELL__|)+[hfc]
+      __CELL__  :- __FORMAT__ ~? __I__ | > | ~
+      __FORMAT__:- (LEFT:
+                |   CENTER:
+                |   RIGHT:
+                |   BGCOLOR(__COLOR__):
+                |   COLOR(__COLOR__):
+                |   SIZE(\d+):
+                |   BOLD:)*
+      __COLOR__ :- __HEX__ | __COLOR_KEYWORD___
+    CSV形式の表組み
+      (,__CSV_CELL__)+
+      __CSV_CELL_ :-  == | \s* (__I__ | "__I__") \s*
+    見出し
+      *
+      **
+      ***
+    左寄せ・センタリング・右寄せ
+      LEFT:|CENTER:|RIGHT:
+    水平線
+      -{4,}
+    プラグイン
+      #\w+
+      #\w+(...)
+
+インライン要素
+    文字列     ...
+    改行      __I__~
+    強調    ''__I__''
+    斜体   '''__I__'''
+    取消線  %%__I__%%
+    注釈    ((__I__))
+
+    ページ名
+      [[__PNAME__]]
+      [[__PNAME__#__ANAME__]]
+    InterWiki
+      [[__IWNAME__:__PNAME__]]
+      [[__IWNAME__:__PNAME__#__ANAME__]]
+    リンク
+      [[__ALIAS__:__URL__]]
+    エイリアス
+      [[__ALIAS__>__PNAME__]]
+      [[__ALIAS__>__PNAME__#__ANAME__]]
+      [[__ALIAS__>#__ANAME__]]
+      [[__ALIAS__>__IWNAME__:__PNAME__]]
+      [[__ALIAS__>__IWNAME__:__PNAME__#__ANAME__]]
+      [[__ALIAS__:__URL__]]
+
+    プラグイン
+      &\w+(...){__I__};
+      &\w+(...);
+      &\w+;
+    */
