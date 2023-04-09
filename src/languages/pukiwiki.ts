@@ -48,7 +48,7 @@ export default function (hljs: HLJSApi): Language {
 
   const QUOTE_BLOCK: Mode = {
     scope: "quote",
-    begin: /^[><]{1,3}(?=\s+)/,
+    begin: /^[><]{1,3}/,
     contains: CONTAINABLE,
     end: "$",
   };
@@ -73,14 +73,14 @@ export default function (hljs: HLJSApi): Language {
   };
 
   const TABLE: Mode = {
-    scope: "table",
-    begin: /^\|.+?\|/,
+    scope: "tag",
+    begin: /^\|(.+?\|)+/,
     end: /$/,
   };
 
   const CSV_TABLE: Mode = {
-    scope: "table",
-    begin: /^,.+?,/,
+    scope: "tag",
+    begin: /^(,.*)+/,
     end: /$/,
   };
 
@@ -136,7 +136,7 @@ export default function (hljs: HLJSApi): Language {
 
   const STRIKE_OUT: Mode = {
     scope: "deletion",
-    begin: /%%/,
+    begin: /%%.*/,
     end: /%%/,
   };
 
@@ -146,7 +146,7 @@ export default function (hljs: HLJSApi): Language {
 
   const FOOTNOTE: Mode = {
     scope: "footnote",
-    begin: /\(\(/,
+    begin: /\(\(.*/,
     end: /\)\)/,
   };
   INLINE_ELEMENTS.push(FOOTNOTE);
@@ -156,7 +156,8 @@ export default function (hljs: HLJSApi): Language {
    * ルビ構造 &xxx( yyy ){ zzz };
    */
   const INLINE_PLUGIN: Mode = {
-    begin: /^&(ref|vote)\(/,
+    scope: "title.function",
+    begin: /^&/ + IDENT_RE + /\(.*/,
     end: /\)/,
   };
   INLINE_ELEMENTS.push(INLINE_PLUGIN);
@@ -248,6 +249,11 @@ export default function (hljs: HLJSApi): Language {
       hljs.C_LINE_COMMENT_MODE, //コメント行
       PARAGRAPH,
       LISTING,
+      DEF,
+      TABLE,
+      CSV_TABLE,
+      ALIGN,
+      QUOTE_BLOCK,
       BLOCK_PLUGIN,
       HEAD,
       HORIZON,
@@ -255,11 +261,6 @@ export default function (hljs: HLJSApi): Language {
       PAGE_NAME,
       CHARACTER_REFERENCE,
       PREFORMATTED,
-      DEF,
-      TABLE,
-      CSV_TABLE,
-      ALIGN,
-      QUOTE_BLOCK,
     ],
   };
 }

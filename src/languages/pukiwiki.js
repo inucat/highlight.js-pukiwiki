@@ -1,4 +1,12 @@
 "use strict";
+/*
+Language: PukiWiki
+Requires:
+Author: inucat <70513648+inucat@users.noreply.github.com>
+Contributors: inucat
+Description: PukiWiki formatting rules definition
+Website: https://pukiwiki.osdn.jp/
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 var modes_1 = require("../lib/modes");
 /**
@@ -25,25 +33,23 @@ function default_1(hljs) {
         scope: "operator",
         begin: /^-{4,}/,
     };
-    /**
-     * end: /(?!~$)/
-     */
-    /** 段落 */
     var PARAGRAPH = {
         scope: "operator",
-        variants: [{ begin: /^~/, excludeEnd: true }],
+        begin: /^~/,
     };
-    /** 引用文 */
-    var BLOCKQUOTE = {
+    var QUOTE_BLOCK = {
         scope: "quote",
-        begin: /^[><]{1,3}(?=\s+)/,
+        begin: /^[><]{1,3}/,
         contains: CONTAINABLE,
         end: "$",
     };
+    /**
+     * end: /(?!~$)/
+     */
     /** リスト構造 ul, ol */
     var LISTING = {
         scope: "bullet",
-        begin: /^[-+]{1,3}/,
+        begin: /^(-{1,3}|\+{1,3})/,
         end: /(?<!~)$/,
         excludeEnd: true,
         contains: INLINE_ELEMENTS,
@@ -54,31 +60,26 @@ function default_1(hljs) {
         begin: /^:{1,3}.*?\|/,
         end: /$/,
     };
-    /** 表組み */
     var TABLE = {
-        scope: "table",
-        begin: /^\|.+?\|/,
+        scope: "tag",
+        begin: /^\|(.+?\|)+/,
         end: /$/,
     };
-    /** CSV形式の表組み */
     var CSV_TABLE = {
-        scope: "table",
-        begin: /^,.+?,/,
+        scope: "tag",
+        begin: /^(,.*)+/,
         end: /$/,
     };
-    /** 見出し */
     var HEAD = {
         scope: "section",
         begin: /^\*{1,3}/,
         end: /$/,
         contains: CONTAINABLE,
     };
-    /** 左寄せ・センタリング・右寄せ */
     var ALIGN = {
         scope: "keyword",
         match: /^(LEFT|CENTER|RIGHT):/,
     };
-    /** Block element plugins */
     var BLOCK_PLUGIN = {
         variants: [
             {
@@ -115,7 +116,7 @@ function default_1(hljs) {
     };
     var STRIKE_OUT = {
         scope: "deletion",
-        begin: /%%/,
+        begin: /%%.*/,
         end: /%%/,
     };
     INLINE_ELEMENTS.push(STRIKE_OUT);
@@ -123,28 +124,20 @@ function default_1(hljs) {
     INLINE_ELEMENTS.push(ITALIC);
     var FOOTNOTE = {
         scope: "footnote",
-        begin: /\(\(/,
+        begin: /\(\(.*/,
         end: /\)\)/,
     };
     INLINE_ELEMENTS.push(FOOTNOTE);
     /**
-     * 文字サイズ
-     * 文字色
-     * 添付ファイル・画像の貼り付け
-     * ルビ構造
-     * アンカーの設定
-     * カウンタ表示
+     * 文字色 HEXCOLOR
+     * ルビ構造 &xxx( yyy ){ zzz };
      */
     var INLINE_PLUGIN = {
-        begin: /^&(ref|vote)\(/,
+        scope: "title.function",
+        begin: /^&/ + modes_1.IDENT_RE + /\(.*/,
         end: /\)/,
     };
     INLINE_ELEMENTS.push(INLINE_PLUGIN);
-    /** Date */
-    var LAST_MODIFIED_DATE = {
-        match: /&lastmod\(.+\);/,
-    };
-    INLINE_ELEMENTS.push(LAST_MODIFIED_DATE);
     var WIKI_NAME = {
         scope: "link",
         match: /([A-Z]+[a-z]+){2}/,
@@ -174,14 +167,12 @@ function default_1(hljs) {
      * [[エイリアス名>ページ名#アンカー名]]
      * [[エイリアス名>#アンカー名]]
      */
-    // link
     INLINE_ELEMENTS.push();
-    /** 文字参照文字 */
     var CHARACTER_REFERENCE = {
         scope: "char.escape",
         variants: [
             {
-                match: /&[A-Za-z]+;?/,
+                match: /&[A-Za-z]+?;/,
             },
             {
                 match: /&#(\d+|x[a-f\d]+);/,
@@ -190,48 +181,48 @@ function default_1(hljs) {
     };
     INLINE_ELEMENTS.push(CHARACTER_REFERENCE);
     return {
-        /* Target language has the name "PukiWiki". */
         name: "PukiWiki",
-        /* PukiWiki is case-sensitive. */
-        case_insensitive: false,
-        /**
-         * The keywords of PukiWiki, all sorts of “literals”, “built-ins”, “symbols” and such.
-         */
+        case_insensitive: true,
         keywords: {
-            $pattern: /(&[a-z]+;?|[a-z]\?|&_(date|time|now);)/,
-            customEmoji: [
-                "&heart;",
-                "&smile;",
-                "&bigsmile;",
-                "&huh;",
-                "&oh;",
-                "&wink;",
-                "&sad;",
-                "&worried;",
-            ],
+            $pattern: /[a-z]\?/,
+            // customEmoji: [
+            //   "&heart;",
+            //   "&smile;",
+            //   "&bigsmile;",
+            //   "&huh;",
+            //   "&oh;",
+            //   "&wink;",
+            //   "&sad;",
+            //   "&worried;",
+            // ],
             keyword: [
-                "&br;",
-                "&online;",
-                "&version;",
-                "&t;",
-                "&page;",
-                "&fpage;",
-                "&date;",
-                "&time;",
-                "&now;",
+                // "&br;", // 改行
+                // "&online;", // オンライン表示
+                // "&version;", // バージョン表示
+                // "&t;", // タブコード
+                // "&page;", // ページ名置換文字
+                // "&fpage;",
+                // "&date;", // 日時置換文字
+                // "&time;",
+                // "&now;",
                 "date?",
                 "time?",
                 "now?",
-                "&_date;",
-                "&_time;",
-                "&_now;",
-                "&lastmod;",
+                // "&_date;",
+                // "&_time;",
+                // "&_now;",
+                // "&lastmod;",
             ],
         },
         contains: [
             hljs.C_LINE_COMMENT_MODE,
             PARAGRAPH,
             LISTING,
+            DEF,
+            TABLE,
+            CSV_TABLE,
+            ALIGN,
+            QUOTE_BLOCK,
             BLOCK_PLUGIN,
             HEAD,
             HORIZON,
