@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var modes_1 = require("../lib/modes");
 /**
  * Defines a function to return a language definition object.
@@ -17,13 +17,13 @@ function default_1(hljs) {
             {
                 begin: /^ /,
                 end: /\n(?=[\S\n])/,
-                excludeEnd: true
+                excludeEnd: true,
             },
-        ]
+        ],
     };
     var HORIZON = {
         scope: "operator",
-        begin: /^-{4,}/
+        begin: /^-{4,}/,
     };
     /**
      * end: /(?!~$)/
@@ -31,14 +31,14 @@ function default_1(hljs) {
     /** 段落 */
     var PARAGRAPH = {
         scope: "operator",
-        variants: [{ begin: /^~/, excludeEnd: true }]
+        variants: [{ begin: /^~/, excludeEnd: true }],
     };
     /** 引用文 */
     var BLOCKQUOTE = {
         scope: "quote",
         begin: /^[><]{1,3}(?=\s+)/,
         contains: CONTAINABLE,
-        end: "$"
+        end: "$",
     };
     /** リスト構造 ul, ol */
     var LISTING = {
@@ -46,44 +46,44 @@ function default_1(hljs) {
         begin: /^[-+]{1,3}/,
         end: /(?<!~)$/,
         excludeEnd: true,
-        contains: INLINE_ELEMENTS
+        contains: INLINE_ELEMENTS,
     };
     /** 定義リスト */
     var DEF = {
         scope: "bullet",
         begin: /^:{1,3}.*?\|/,
-        end: /$/
+        end: /$/,
     };
     /** 表組み */
     var TABLE = {
         scope: "table",
         begin: /^\|.+?\|/,
-        end: /$/
+        end: /$/,
     };
     /** CSV形式の表組み */
     var CSV_TABLE = {
         scope: "table",
         begin: /^,.+?,/,
-        end: /$/
+        end: /$/,
     };
     /** 見出し */
     var HEAD = {
         scope: "section",
         begin: /^\*{1,3}/,
         end: /$/,
-        contains: CONTAINABLE
+        contains: CONTAINABLE,
     };
     /** 左寄せ・センタリング・右寄せ */
     var ALIGN = {
         scope: "keyword",
-        match: /^(LEFT|CENTER|RIGHT):/
+        match: /^(LEFT|CENTER|RIGHT):/,
     };
     /** Block element plugins */
     var BLOCK_PLUGIN = {
         variants: [
             {
                 match: "^#" + modes_1.IDENT_RE,
-                scope: "title"
+                scope: "title",
             },
             {
                 begin: [/^#/, modes_1.IDENT_RE, /\(/],
@@ -93,30 +93,30 @@ function default_1(hljs) {
                     { match: /,/, scope: "punctuation" },
                 ],
                 end: /\)/,
-                endScope: "punctuation"
+                endScope: "punctuation",
             },
-        ]
+        ],
     };
     /** インライン要素 ************************************************************/
     var LINE_BREAK = {
         scope: "operator",
-        match: /~$/
+        match: /~$/,
     };
     INLINE_ELEMENTS.push(LINE_BREAK);
     var BOLD = {
         scope: "strong",
         begin: /'{2}(?!')/,
-        end: /'{2}/
+        end: /'{2}/,
     };
     var ITALIC = {
         scope: "emphasis",
         begin: /'{3}/,
-        end: /'{3}/
+        end: /'{3}/,
     };
     var STRIKE_OUT = {
         scope: "deletion",
         begin: /%%/,
-        end: /%%/
+        end: /%%/,
     };
     INLINE_ELEMENTS.push(STRIKE_OUT);
     INLINE_ELEMENTS.push(BOLD);
@@ -124,7 +124,7 @@ function default_1(hljs) {
     var FOOTNOTE = {
         scope: "footnote",
         begin: /\(\(/,
-        end: /\)\)/
+        end: /\)\)/,
     };
     INLINE_ELEMENTS.push(FOOTNOTE);
     /**
@@ -137,17 +137,17 @@ function default_1(hljs) {
      */
     var INLINE_PLUGIN = {
         begin: /^&(ref|vote)\(/,
-        end: /\)/
+        end: /\)/,
     };
     INLINE_ELEMENTS.push(INLINE_PLUGIN);
     /** Date */
     var LAST_MODIFIED_DATE = {
-        match: /&lastmod\(.+\);/
+        match: /&lastmod\(.+\);/,
     };
     INLINE_ELEMENTS.push(LAST_MODIFIED_DATE);
     var WIKI_NAME = {
         scope: "link",
-        match: /([A-Z]+[a-z]+){2}/
+        match: /([A-Z]+[a-z]+){2}/,
     };
     INLINE_ELEMENTS.push(WIKI_NAME);
     var PAGE_NAME = {
@@ -155,7 +155,7 @@ function default_1(hljs) {
         begin: /\[\[/,
         beginScope: "operator",
         end: /\]\]/,
-        endScope: "operator"
+        endScope: "operator",
     };
     INLINE_ELEMENTS.push(PAGE_NAME);
     /**
@@ -181,12 +181,12 @@ function default_1(hljs) {
         scope: "char.escape",
         variants: [
             {
-                match: /&[A-Za-z]+;?/
+                match: /&[A-Za-z]+;?/,
             },
             {
-                match: /&#(\d+|x[a-f\d]+);/
+                match: /&#(\d+|x[a-f\d]+);/,
             },
-        ]
+        ],
     };
     INLINE_ELEMENTS.push(CHARACTER_REFERENCE);
     return {
@@ -226,7 +226,7 @@ function default_1(hljs) {
                 "&_time;",
                 "&_now;",
                 "&lastmod;",
-            ]
+            ],
         },
         contains: [
             hljs.C_LINE_COMMENT_MODE,
@@ -239,7 +239,7 @@ function default_1(hljs) {
             PAGE_NAME,
             CHARACTER_REFERENCE,
             PREFORMATTED,
-        ]
+        ],
     };
 }
-exports["default"] = default_1;
+exports.default = default_1;

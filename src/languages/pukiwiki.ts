@@ -6,11 +6,14 @@ Contributors: inucat
 Description: PukiWiki formatting rules definition
 Website: https://pukiwiki.osdn.jp/
  */
+
 /**
  * @see https://pukiwiki.osdn.jp/?FormattingRules
  */
+
 import { HLJSApi, Language, Mode } from "highlight.js";
 import { IDENT_RE } from "../lib/modes";
+
 /**
  * Defines a function to return a language definition object.
  * @param hljs
@@ -27,7 +30,7 @@ export default function (hljs: HLJSApi): Language {
     contains: [
       {
         begin: /^ /,
-        end: /\n(?=[\S\n])/, //= \S excludes \n ...
+        end: /\n(?=[\S\n])/,
         excludeEnd: true,
       },
     ],
@@ -38,27 +41,25 @@ export default function (hljs: HLJSApi): Language {
     begin: /^-{4,}/,
   };
 
-  /**
-   * end: /(?!~$)/
-   */
-  /** 段落 */
   const PARAGRAPH: Mode = {
     scope: "operator",
-    variants: [{ begin: /^~/, excludeEnd: true }],
+    begin: /^~/,
   };
 
-  /** 引用文 */
-  const BLOCKQUOTE: Mode = {
+  const QUOTE_BLOCK: Mode = {
     scope: "quote",
     begin: /^[><]{1,3}(?=\s+)/,
     contains: CONTAINABLE,
     end: "$",
   };
 
+  /**
+   * end: /(?!~$)/
+   */
   /** リスト構造 ul, ol */
   const LISTING: Mode = {
     scope: "bullet",
-    begin: /^[-+]{1,3}/,
+    begin: /^(-{1,3}|\+{1,3})/,
     end: /(?<!~)$/,
     excludeEnd: true,
     contains: INLINE_ELEMENTS,
@@ -71,21 +72,18 @@ export default function (hljs: HLJSApi): Language {
     end: /$/,
   };
 
-  /** 表組み */
   const TABLE: Mode = {
     scope: "table",
     begin: /^\|.+?\|/,
     end: /$/,
   };
 
-  /** CSV形式の表組み */
   const CSV_TABLE: Mode = {
     scope: "table",
     begin: /^,.+?,/,
     end: /$/,
   };
 
-  /** 見出し */
   const HEAD: Mode = {
     scope: "section",
     begin: /^\*{1,3}/,
@@ -93,13 +91,11 @@ export default function (hljs: HLJSApi): Language {
     contains: CONTAINABLE,
   };
 
-  /** 左寄せ・センタリング・右寄せ */
   const ALIGN: Mode = {
     scope: "keyword",
     match: /^(LEFT|CENTER|RIGHT):/,
   };
 
-  /** Block element plugins */
   const BLOCK_PLUGIN: Mode = {
     variants: [
       {
@@ -156,23 +152,14 @@ export default function (hljs: HLJSApi): Language {
   INLINE_ELEMENTS.push(FOOTNOTE);
 
   /**
-   * 文字サイズ
-   * 文字色
-   * 添付ファイル・画像の貼り付け
-   * ルビ構造
-   * アンカーの設定
-   * カウンタ表示
+   * 文字色 HEXCOLOR
+   * ルビ構造 &xxx( yyy ){ zzz };
    */
   const INLINE_PLUGIN: Mode = {
     begin: /^&(ref|vote)\(/,
     end: /\)/,
   };
   INLINE_ELEMENTS.push(INLINE_PLUGIN);
-  /** Date */
-  const LAST_MODIFIED_DATE: Mode = {
-    match: /&lastmod\(.+\);/,
-  };
-  INLINE_ELEMENTS.push(LAST_MODIFIED_DATE);
 
   const WIKI_NAME: Mode = {
     scope: "link",
@@ -205,15 +192,13 @@ export default function (hljs: HLJSApi): Language {
    * [[エイリアス名>ページ名#アンカー名]]
    * [[エイリアス名>#アンカー名]]
    */
-  // link
   INLINE_ELEMENTS.push();
 
-  /** 文字参照文字 */
   const CHARACTER_REFERENCE: Mode = {
     scope: "char.escape",
     variants: [
       {
-        match: /&[A-Za-z]+;?/,
+        match: /&[A-Za-z]+?;/,
       },
       {
         match: /&#(\d+|x[a-f\d]+);/,
@@ -223,44 +208,39 @@ export default function (hljs: HLJSApi): Language {
   INLINE_ELEMENTS.push(CHARACTER_REFERENCE);
 
   return {
-    /* Target language has the name "PukiWiki". */
     name: "PukiWiki",
 
-    /* PukiWiki is case-sensitive. */
-    case_insensitive: false,
+    case_insensitive: true,
 
-    /**
-     * The keywords of PukiWiki, all sorts of “literals”, “built-ins”, “symbols” and such.
-     */
     keywords: {
-      $pattern: /(&[a-z]+;?|[a-z]\?|&_(date|time|now);)/,
-      customEmoji: [
-        "&heart;",
-        "&smile;",
-        "&bigsmile;",
-        "&huh;",
-        "&oh;",
-        "&wink;",
-        "&sad;",
-        "&worried;",
-      ],
+      $pattern: /[a-z]\?/,
+      // customEmoji: [
+      //   "&heart;",
+      //   "&smile;",
+      //   "&bigsmile;",
+      //   "&huh;",
+      //   "&oh;",
+      //   "&wink;",
+      //   "&sad;",
+      //   "&worried;",
+      // ],
       keyword: [
-        "&br;", // 改行
-        "&online;", // オンライン表示
-        "&version;", // バージョン表示
-        "&t;", // タブコード
-        "&page;", // ページ名置換文字
-        "&fpage;",
-        "&date;", // 日時置換文字
-        "&time;",
-        "&now;",
+        // "&br;", // 改行
+        // "&online;", // オンライン表示
+        // "&version;", // バージョン表示
+        // "&t;", // タブコード
+        // "&page;", // ページ名置換文字
+        // "&fpage;",
+        // "&date;", // 日時置換文字
+        // "&time;",
+        // "&now;",
         "date?",
         "time?",
         "now?",
-        "&_date;",
-        "&_time;",
-        "&_now;",
-        "&lastmod;",
+        // "&_date;",
+        // "&_time;",
+        // "&_now;",
+        // "&lastmod;",
       ],
     },
 
@@ -275,6 +255,11 @@ export default function (hljs: HLJSApi): Language {
       PAGE_NAME,
       CHARACTER_REFERENCE,
       PREFORMATTED,
+      DEF,
+      TABLE,
+      CSV_TABLE,
+      ALIGN,
+      QUOTE_BLOCK,
     ],
   };
 }
