@@ -1,3 +1,0 @@
-PukiWiki sample text
-
-<span class="hljs-comment">// Hello</span>

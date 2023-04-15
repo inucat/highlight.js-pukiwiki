@@ -1,0 +1,574 @@
+<span class="hljs-title">#freeze</span>
+<span class="hljs-title">#nofollow</span>
+<span class="hljs-title">#norelated</span>
+<span class="hljs-section">* テキスト整形のルール [#oca54177]</span>
+
+通常は入力した文章がそのまま出力されます。
+
+<span class="hljs-bullet">-</span> HTMLのタグは効果がありません。書かれた文章はそのまま(「&lt;font color=&quot;red&quot;&gt;text&lt;/font&gt;」といった形のまま)表示されます
+<span class="hljs-bullet">-</span> 段落と段落の区切りには空行をはさんで下さい。空行をはさまず、連続している複数の行は同じ段落と解釈されます (連結して表示されます)
+
+これに加えて、特定のルールによるテキスト整形を行うことができます。以下では、プラグインについてはよく使われるものだけを簡略に説明しています。プラグインのオプションなど詳細な説明については <span class="hljs-link"><span class="hljs-operator">[[</span>PukiWiki/1.4/Manual/Plugin<span class="hljs-operator">]]</span></span> を参照してください。
+
+<span class="hljs-operator">-------------------------------------</span>
+<span class="hljs-title">#contents</span>
+<span class="hljs-operator">-------------------------------------</span>
+
+<span class="hljs-section">** ブロック要素 [#vd593893]</span>
+<span class="hljs-bullet">-</span> ブロック要素は、インライン要素と他のブロック要素を子要素にすることができます。ただし、段落、見出し、水平線、#から始まるブロック要素は他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-bullet">-</span> 空行はトップレベルのブロック要素の区切りになります。空行が現われると、すべてのブロック要素は終了します。
+
+<span class="hljs-bullet">-</span> ブロック要素は、他のブロック要素の子要素になることができます。
+<span class="hljs-bullet">--</span> リスト構造と引用文は他のブロック要素を子要素にすることができます。子要素のブロック要素は親要素のレベルに従ってインデントされて表示されます。空行が現われるとブロック要素は終了します。
+<span class="hljs-bullet">--</span> リスト構造と引用文のネストには3段階のレベルがありますが、リスト構造のレベルと引用文のレベルは独立しています。従って、リスト構造を引用文の子要素にする場合や引用文をリスト構造の子要素にする場合は、レベルを1段階増やさずに記述します。リスト構造を他のリスト構造の子要素にする場合や引用文を他の引用文の子要素にする場合は、レベルを1段階増やして記述します。
+<span class="hljs-bullet">--</span> 他のブロック要素の子要素となっている引用文から脱出するとき、親のブロック要素を継続したい場合は行頭に&lt;、&lt;&lt;、&lt;&lt;&lt;を記述します。&lt;で第1レベルの引用文から、&lt;&lt;で第2レベルの引用文から、&lt;&lt;&lt;で第3レベルの引用文から脱出します。空行を記述すると引用文だけでなく親のブロック要素からも脱出します。
+
+<span class="hljs-bullet">-</span> ブロック要素となるプラグインは#～の形式になっています。<span class="hljs-string">((インライン要素となるプラグインやユーザ定義とは異なり、ブロック要素となるプラグインでは終端に;を付加する必要はありません。プラグインによっては正常に動作しなくなる場合があります。))</span>
+
+<span class="hljs-section">*** 段落 [#n6691793]</span>
+インライン要素
+他のブロック要素を明示しない限り、段落となります。
+<span class="hljs-operator">~</span> インライン要素
+行頭で ~ を指定した場合も段落になります。行頭書式の文字(~、-、+、:、&gt;、|、#、//)を通常の文字として段落の先頭に書きたい場合は、行頭に~を記述して書くことができます。
+
+<span class="hljs-bullet">-</span> 段落の先頭は1文字分字下げされます。但し、番号なしリスト構造、番号付きリスト構造、引用文内の段落では字下げされません。定義リスト内の段落の先頭は1文字分字下げされます。
+<span class="hljs-bullet">-</span> 段落は、新たなブロック要素が現われるまで継続します。
+<span class="hljs-bullet">-</span> 段落は、他のブロック要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 段落は、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-section">*** 引用文 [#af1781b1]</span>
+<span class="hljs-quote">&gt; インライン要素
+行頭で &gt; を指定すると、引用文になります。引用文は &gt;、&gt;&gt;、&gt;&gt;&gt; の3レベルあります。
+- 引用文の中は、ブロック要素を明示しない限り、段落となります。
+- 引用文は、空行が現われるまで継続します。
+- 引用文内の段落は、新たな引用文またはブロック要素が現われるまで継続します。
+- 引用文は、他のブロック要素の子要素になることができます。他の引用文の子要素にする場合は、レベルを1段増やして記述します。リスト構造の子要素にする場合はレベルを1段増やさずに記述します。
+- 引用文は、他のブロック要素を子要素にすることができます。引用文の子要素となるリスト構造はレベルを1段増やさずに記述します。
+- リスト構造内の引用文から脱出する場合で、リスト構造を継続する場合は、&lt;、&lt;&lt;、&lt;&lt;&lt;を行頭に記述します。
+</span>
+<span class="hljs-section">*** リスト構造 [#q8abd9a8]</span>
+<span class="hljs-bullet">-</span> インライン要素
+行頭で - を指定すると、番号なしリストになります。番号なしリストは -、--、--- の3レベルあります。
+
+<span class="hljs-bullet">-</span> 番号なしリストは、他のブロック要素の子要素になることができます。他のリスト構造の子要素にする場合は、レベルを1段増やして記述します。引用文の子要素にする場合は、レベルを増やさずに記述します。
+<span class="hljs-bullet">-</span> -の直後に ~を記述すると段落を子要素にすることができます。
+<span class="hljs-bullet">-</span>番号なしリストは、<span class="hljs-strong">&#x27;&#x27;リストの先頭がインライン要素または段落である場合に限り&#x27;&#x27;</span>、リストの次の行に他のブロック要素を記述することで、他のブロック要素を子要素にすることができます。
+
+<span class="hljs-bullet">+</span> インライン要素
+行頭で + を指定すると、番号付きリストになります。番号付きリストは +、++、+++ の3レベルあります。
+
+<span class="hljs-bullet">-</span> 番号付きリストは、他のブロック要素の子要素になることができます。他のリスト構造の子要素にする場合は、レベルを1段増やして記述します。引用文の子要素にする場合は、レベルを増やさずに記述します。
+<span class="hljs-bullet">-</span> + の直後に ~ を記述すると段落を子要素にすることができます。
+<span class="hljs-bullet">-</span> 番号付きリストは、<span class="hljs-strong">&#x27;&#x27;リストの先頭がインライン要素または段落である場合に限り&#x27;&#x27;</span>、リストの次の行に他のブロック要素を記述することで、他のブロック要素を子要素にすることができます。
+
+<span class="hljs-bullet">: 定義語 |</span> 説明文
+行頭を : で始め、| 記号で区切ると、定義リストになります。定義リストは :、::、::: の3段階あります。定義リストの定義語、説明文は省略することができます。複数の連続した定義リストを記述し、2つ目以降の定義語を省略することで1つの定義語に対する複数の説明文を記述することができます。
+
+<span class="hljs-bullet">-</span> 行中に | がないと定義リストにはなりません。
+<span class="hljs-bullet">-</span> 定義語・説明文は、インライン要素のみ記述することができます。
+<span class="hljs-bullet">-</span> 定義リストは、他のブロック要素の子要素になることができます。他のリスト構造の子要素にする場合は、レベルを1段増やして記述します。引用文の子要素にする場合は、レベルを増やさずに記述します。
+<span class="hljs-bullet">-</span> | の直後に ~ を記述すると段落を子要素にすることができます。
+<span class="hljs-bullet">-</span> 定義リストは、定義リストの次の行に他のブロック要素を記述することで、他のブロック要素を子要素にすることができます。
+
+<span class="hljs-section">*** 整形済みテキスト [#g72f3a72]</span>
+行頭が半角空白で始まる行は整形済みテキストとなります。行の自動折り返しは行なわれません。
+
+<span class="hljs-bullet">-</span> 整形済みテキストは、他のブロック要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 整形済みテキストは、他のブロック要素を子要素にすることができません。
+<span class="hljs-bullet">-</span> 整形済みテキストは、すべての子要素を文字列として扱います。
+
+<span class="hljs-section">*** 表組み [#k7c49df4]</span>
+<span class="hljs-doctag">| インライン要素 | インライン要素 |</span>
+行頭から | でインライン要素を区切ることで表組みになります。
+
+<span class="hljs-bullet">-</span> 各要素の先頭に下記の記述子を指定できます。
+<span class="hljs-keyword">LEFT:</span>
+<span class="hljs-keyword">CENTER:</span>
+<span class="hljs-keyword">RIGHT:</span>
+BGCOLOR(色):
+COLOR(色):
+SIZE(サイズ):
+BOLD:
+<span class="hljs-bullet">--</span> 要素の表示位置及び背景色・文字色・文字サイズ(px単位)・太字を指定します。デフォルトは左寄せになります。
+<span class="hljs-bullet">-</span>
+<span class="hljs-doctag">|表組みの              |各セルの要素の配置に|BOLD:関するサンプル              |h</span>
+<span class="hljs-doctag">|COLOR(crimson):左寄せ |CENTER:センタリング |BGCOLOR(yellow):RIGHT:右寄せ|</span>
+<span class="hljs-doctag">|RIGHT:右寄せ          |左寄せ              |CENTER:センタリング         |</span>
+<span class="hljs-bullet">-</span> 行末にcを記述すると、書式指定行となります。書式指定行では、次の記述子が指定できます。
+<span class="hljs-keyword">LEFT:</span>
+<span class="hljs-keyword">CENTER:</span>
+<span class="hljs-keyword">RIGHT:</span>
+BGCOLOR(色):
+COLOR(色):
+SIZE(サイズ):
+BOLD:
+<span class="hljs-bullet">--</span> 記述子の後ろに数値を記述すると、セル幅がpx単位で指定できます。
+
+<span class="hljs-bullet">-</span> 行末にhを記述すると、ヘッダ行(thead)になります。
+<span class="hljs-bullet">-</span> 行末にfを記述すると、フッタ行(tfoot)になります。
+<span class="hljs-bullet">-</span> セル内のインライン要素の先頭に~を付けると、ヘッダ(th)になります。
+<span class="hljs-bullet">-</span> セル内に &gt; を単独で記述すると右のセルと連結します(colspan)。
+<span class="hljs-bullet">-</span> セル内に ~ を単独で記述すると上のセルと連結します(rowspan)。
+
+<span class="hljs-bullet">-</span> 表組みは、他のブロック要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 表組みは、他のブロック要素を子要素にすることができません。
+
+<span class="hljs-section">*** CSV形式の表組み [#zc726b7e]</span>
+<span class="hljs-doctag">,データ,データ,…</span>
+<span class="hljs-operator">~</span>行頭でカンマ(,)を記述し、インライン要素をカンマ区切りで記述すると表組みになります。
+
+<span class="hljs-bullet">-</span> インライン要素はダブルクォーテーション(&quot;)で囲むことができます。ダブルクォーテーションで囲むことで、カンマ(,)を含むインライン要素を記述できます。
+<span class="hljs-bullet">-</span> ダブルクォーテーション(&quot;)で囲んだデータの中で、ダブルクォーテーションを2つ(&quot;&quot;)続けることで、ダブルクォーテーション(&quot;)を含むインライン要素を記述できます。
+<span class="hljs-bullet">-</span> インライン要素の代わりにイコールを2つ(==)記述すると、colspanを意味します。
+<span class="hljs-bullet">-</span> インライン要素の左に1つ以上の半角空白文字を記述すると右寄せに、インライン要素の左右に1つ以上の半角空白文字を記述するとセンタリングになります。
+
+<span class="hljs-bullet">-</span> 表組みは、他のブロック要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 表組みは、他のブロック要素を子要素にすることができません。
+
+<span class="hljs-section">*** 見出し [#z15343da]</span>
+<span class="hljs-section">* インライン要素</span>
+行頭で * を記述すると、見出しになります。見出しは *、**、*** の3段階あります。
+
+<span class="hljs-bullet">-</span> 見出しは、他のブロック要素の子要素になることはできません。見出しが現われると他のブロック要素は終了します。
+<span class="hljs-bullet">-</span> 見出しは、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-section">*** 目次 [#l6dfa631]</span>
+<span class="hljs-title">#contents</span>
+行頭で #contents を記述すると、見出しに基づいて目次を作成します。一般的に #contents はページの最初のほうに記述します。
+
+<span class="hljs-bullet">-</span> 目次は、他のブロック要素の子要素になることができますが、トップレベルに設置することを前提に左マージンを設定してありますので、他のブロック要素の子要素にはしないでください。
+<span class="hljs-bullet">-</span> 目次は、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-section">*** 左寄せ・センタリング・右寄せ [#bbc1f21c]</span>
+<span class="hljs-keyword">LEFT:</span>インライン要素
+<span class="hljs-keyword">CENTER:</span>インライン要素
+<span class="hljs-keyword">RIGHT:</span>インライン要素
+行頭で LEFT:、 CENTER:、 RIGHT: を記述すると、インライン要素が左寄せ、センタリング、右寄せされます。
+
+<span class="hljs-bullet">-</span> LEFT:、CENTER:、RIGHT:は、他のブロック要素の子要素になることができます。
+<span class="hljs-bullet">-</span> LEFT:、CENTER:、RIGHT:は、他のブロック要素を子要素にすることができません。
+
+<span class="hljs-section">*** 水平線 [#s9799d2c]</span>
+<span class="hljs-operator">---------------------------------------------</span>
+行頭で4つ以上の - を書くと水平線になります。
+
+<span class="hljs-bullet">-</span> 水平線は、他のブロック要素の子要素になることはできません。水平線が現われると他のブロック要素は終了します。
+<span class="hljs-bullet">-</span> 水平線は、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-title">#hr</span>
+行頭で #hr を記述すると、区切り線になります。区切り線は上位のブロック要素の幅の60%の長さの水平線がセンタリングされて引かれます。
+
+<span class="hljs-bullet">-</span> 区切り線は、他のブロック要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 区切り線は、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-section">*** 行間開け [#j2656808]</span>
+<span class="hljs-title">#br</span>
+行頭で #br を記述すると、ブロック要素間またはブロック要素内で行間を開けることができます<span class="hljs-string">((#brをブロック要素の直後の空行の次に指定すればブロック要素間の行間、ブロック要素の直後に指定すればそのブロック要素内での行間を開けることになります。#brは、行末改行と違って、次の行の行頭書式を無効にはしません))</span>。
+
+<span class="hljs-bullet">-</span> 行間開けは、他のブロック要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 行間開けは、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-section">*** 添付ファイル・画像の貼り付け [#p1971296]</span>
+<span class="hljs-title">#ref</span>(添付ファイル名)
+<span class="hljs-title">#ref</span>(ファイルのURL)
+行頭で #ref を記述すると、添付ファイルまたは指定されたURLにあるファイルへのリンクを貼り付けることができます。ファイルが画像ファイルの場合は、その画像を表示します。
+
+<span class="hljs-bullet">-</span> #ref には、カンマで区切って下記のパラメタを指定できます。パラメタを省略した場合はデフォルト値となります。
+添付ファイルのページ
+<span class="hljs-bullet">--</span> 添付ファイルが存在するページ名を指定します。デフォルトは現在のページです。
+<span class="hljs-bullet">--</span> このパラメタを指定する場合は、添付ファイル名の次に記述します。
+<span class="hljs-bullet">-</span>
+left
+center
+right
+<span class="hljs-bullet">--</span> ファイルへのリンク・画像を表示する位置を指定します。デフォルトではセンタリングされます。
+<span class="hljs-bullet">-</span>
+wrap
+nowrap
+<span class="hljs-bullet">--</span> ファイルへのリンク・画像を枠で囲むかどうかを指定します。デフォルトは囲みません。
+<span class="hljs-bullet">-</span>
+around
+<span class="hljs-bullet">--</span> テキストの回り込みを指定します。デフォルトでは回り込みを行ないません。
+<span class="hljs-bullet">-</span>
+nolink
+<span class="hljs-bullet">--</span> デフォルトでは添付ファイルへのリンクが張られますが、nolinkを指定するとリンクを張りません。
+<span class="hljs-bullet">-</span>
+代替文字列
+<span class="hljs-bullet">--</span> ファイル名の代わりに表示する文字列や画像の代替文字列を指定できます。指定しない場合は、ファイル名になります。
+<span class="hljs-bullet">--</span> 代替文字列には文字列以外のインライン要素を含めることはできません。ページ名、文字列以外のインライン要素を記述しても文字列として扱われます。
+<span class="hljs-bullet">--</span> このパラメタを指定する場合は、最後に記述します。
+
+<span class="hljs-bullet">-</span> #refは、他のブロック要素の子要素になることができます。
+<span class="hljs-bullet">-</span> #refは、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-section">*** テキストの回り込みの解除 [#a800a528]</span>
+<span class="hljs-title">#clear</span>
+行頭で #clear を記述すると、 #ref で指定したテキストの回り込みを解除します。 #clear を指定しなくても、記事の末尾でテキストの回り込みが自動的に解除されます。
+
+<span class="hljs-bullet">-</span> #clearは、他のブロック要素の子要素になることができます。
+<span class="hljs-bullet">-</span> #clearは、他のブロック要素を子要素にすることができません。
+
+<span class="hljs-comment">//  #img(,clear)</span>
+<span class="hljs-comment">// ~#clearと同じ。</span>
+
+<span class="hljs-section">*** フォーム [#x23849ca]</span>
+<span class="hljs-title">#comment</span>
+行頭で #comment を記述すると、コメントを挿入するためのフォームが埋め込まれます。
+
+<span class="hljs-bullet">-</span> #commentは、他のブロック要素の子要素になることができますが、トップレベルに設置することを前提に左マージンを設定してありますので、他のブロック要素の子要素にはしないでください。
+<span class="hljs-bullet">-</span> #commentは、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-title">#pcomment</span>
+行頭で #pcomment を記述すると、コメントを挿入するためのフォームが埋め込まれます。 #comment とは異なり、コメントは別ページに記録されます。また、コメントに対するレスポンスを階層状に表示します。
+
+<span class="hljs-bullet">-</span> #pcommentは、他のブロック要素の子要素になることができますが、トップレベルに設置することを前提に左マージンを設定してありますので、他のブロック要素の子要素にはしないでください。
+<span class="hljs-bullet">-</span> #pcommentは、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-title">#article</span>
+行頭で#articleを記述すると、簡易掲示板のフォームが埋め込まれます。
+
+<span class="hljs-bullet">-</span> #articleは、他のブロック要素の子要素になることができますが、トップレベルに設置することを前提に左マージンを設定してありますので、他のブロック要素の子要素にはしないでください。
+<span class="hljs-bullet">-</span> #articleは、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-title">#vote</span>(選択肢1,選択肢2,...)
+行頭で #vote を記述すると、簡易投票フォームが埋め込まれます。
+
+<span class="hljs-bullet">-</span> 選択肢は文字列、ページ名、<span class="hljs-link">InterWiki</span>、リンクを含めることができます。その他のインライン要素を含めることができません。
+<span class="hljs-bullet">-</span> #voteは、他のブロック要素の子要素になることができますが、トップレベルに設置することを前提に左マージンを設定してありますので、他のブロック要素の子要素にはしないでください。
+<span class="hljs-bullet">-</span> #voteは、他のブロック要素を子要素にすることはできません。
+
+<span class="hljs-section">** インライン要素 [#l7110f11]</span>
+<span class="hljs-bullet">-</span> インライン要素は、必ずブロック要素の子要素になっています。
+<span class="hljs-bullet">--</span> 行頭書式でブロック要素を明示しない場合は、段落の子要素となります。
+<span class="hljs-bullet">--</span> 行頭書式でブロック要素を明示した場合は、指定したブロック要素の子要素になります。
+
+<span class="hljs-bullet">-</span> 特定のインライン要素は、他のインライン要素を子要素にすることができます。
+<span class="hljs-bullet">-</span> インライン要素はブロック要素を子要素にすることはできません。
+<span class="hljs-bullet">-</span> インライン要素となるプラグイン及びユーザー定義は <span class="hljs-variable">&amp;amp;</span>～; の形式になっています。
+<span class="hljs-bullet">-</span> インライン要素となるプラグインに対してオプションと子要素を指定する場合は、 <span class="hljs-variable">&amp;amp;</span>プラグイン名(オプション){子要素}; の形式になります。
+
+<span class="hljs-section">*** 文字列 [#bd24e4ad]</span>
+文字列
+文字列はインライン要素です。
+
+<span class="hljs-bullet">-</span> 文字列は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 文字列は、他のインライン要素を子要素にすることができません。
+
+<span class="hljs-section">*** 改行 [#f383c24f]</span>
+インライン要素<span class="hljs-operator">~</span>
+行末に~を書くと行末改行になります。行末改行はブロック要素内での改行になります。
+
+<span class="hljs-bullet">-</span> 行末改行の次の行の行頭書式は無効になり、文字列として扱われます。
+<span class="hljs-bullet">-</span> 行末改行は、他のインライン要素の子要素になることはできません。
+<span class="hljs-bullet">-</span> 行末改行は、他のインライン要素を子要素にすることはできません。
+<span class="hljs-bullet">-</span> 行末改行は、定義リストの定義語、表組みの要素、#で始まるブロック要素のパラメタの中では使用できません。
+
+<span class="hljs-variable">&amp;br;</span>
+行中に <span class="hljs-variable">&amp;amp;</span>br; を書くと、そこで改行されます。行末の ~ と違い、定義リストの定義語や表組の要素、# で始まるブロック要素のパラメタの中でも使用できます。
+
+<span class="hljs-bullet">-</span> 行中改行は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 行中改行は、他のインライン要素を子要素にすることはできません。
+
+<span class="hljs-section">*** 強調・斜体 [#n38a029f]</span>
+<span class="hljs-strong">&#x27;&#x27;インライン要素&#x27;&#x27;</span>
+行中のインライン要素を <span class="hljs-variable">&amp;#39;</span><span class="hljs-variable">&amp;#39;</span> ではさむと、インライン要素が <span class="hljs-strong">&#x27;&#x27;強調表示&#x27;&#x27;</span> になります。
+
+<span class="hljs-bullet">-</span> 強調は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 強調は、他のインライン要素を子要素にすることができます。
+
+<span class="hljs-emphasis">&#x27;&#x27;&#x27;インライン要素&#x27;&#x27;&#x27;</span>
+行中のインライン要素を <span class="hljs-variable">&amp;#39;</span><span class="hljs-variable">&amp;#39;</span><span class="hljs-variable">&amp;#39;</span> ではさむと、インライン要素が <span class="hljs-emphasis">&#x27;&#x27;&#x27;斜体表示&#x27;&#x27;&#x27;</span> になります。
+
+<span class="hljs-bullet">-</span> 斜体は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 斜体は、他のインライン要素を子要素にすることができます。
+
+<span class="hljs-section">*** 文字サイズ [#t513b12d]</span>
+<span class="hljs-variable">&amp;size(サイズ){インライン要素};</span>
+行中に <span class="hljs-variable">&amp;amp;</span>size を書くとインライン要素の文字サイズを指定することができます。サイズはピクセル単位(px)で指定します。例えば20を指定すると、SIZE(20){20ピクセルの文字の大きさ}になります。
+
+<span class="hljs-bullet">-</span> 文字サイズは、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 文字サイズは、他のインライン要素を子要素にすることができます。
+
+<span class="hljs-section">*** 文字色 [#sf40816a]</span>
+<span class="hljs-variable">&amp;color(文字色,背景色){インライン要素};</span>
+行中に <span class="hljs-variable">&amp;amp;</span>color と書くとインライン要素の<span class="hljs-variable">&amp;color(crimson){文字色};</span>と<span class="hljs-variable">&amp;color(blue,crimson){背景色};</span>を指定することができます。背景色は省略できます。
+
+<span class="hljs-bullet">-</span> 色の指定は、次のいずれかの形式で行ないます。
+<span class="hljs-bullet">--</span> 色を意味するキーワード(red, blueなど)
+<span class="hljs-bullet">--</span> #16進数6桁
+<span class="hljs-bullet">--</span> #16進数3桁
+
+<span class="hljs-bullet">-</span> 文字色は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 文字色は、他のインライン要素を子要素にすることができます。
+
+<span class="hljs-section">*** 取消線 [#r81ec79f]</span>
+<span class="hljs-deletion">%%インライン要素%%</span>
+行中のインライン要素を<span class="hljs-variable">&amp;#37;</span><span class="hljs-variable">&amp;#37;</span>ではさむと、インライン要素に<span class="hljs-deletion">%%取消線%%</span>が付きます。
+
+<span class="hljs-bullet">-</span> 取消線は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 取消線は、他のインライン要素を子要素にすることができます。
+
+<span class="hljs-section">***注釈 [#s21cf12e]</span>
+<span class="hljs-string">((インライン要素))</span>
+行中でインライン要素を <span class="hljs-variable">&amp;#40;</span><span class="hljs-variable">&amp;#40;</span> と <span class="hljs-variable">&amp;#41;</span><span class="hljs-variable">&amp;#41;</span> ではさむと、注釈<span class="hljs-string">((注釈のサンプル))</span>が作成され、行中に注釈へのリンクが貼られます。
+
+<span class="hljs-bullet">-</span> 注釈は、他のインライン要素の子要素になることができます。親要素は注釈文ではなく、注釈へのリンクに反映されます。
+<span class="hljs-bullet">-</span> 注釈は、他のインライン要素を子要素にすることができます。子要素は注釈文に反映されます。
+
+<span class="hljs-comment">// &amp;p;</span>
+<span class="hljs-comment">//注釈内に&amp;amp;p;を書くと改段落になります ((注釈内改段落は、本来はブロック要素ですが、PukiWikiでは注釈をインラインで記述するため、インライン要素として記述する必要があります。他のインライン要素の子要素にはできないことに留意して使用する必要があります。))。</span>
+<span class="hljs-comment">//-注釈内改段落は、他のインライン要素の子要素になることはできません。</span>
+<span class="hljs-comment">//-注釈内改段落は、他のインライン要素を子要素にすることはできません。</span>
+
+<span class="hljs-section">*** 添付ファイル・画像の貼り付け [#v181e939]</span>
+<span class="hljs-variable">&amp;ref(添付ファイル名);</span>
+<span class="hljs-variable">&amp;ref(ファイルのURL);</span>
+行中で <span class="hljs-variable">&amp;amp;</span>ref を記述すると、添付ファイルまたは指定されたURLにあるファイルへのリンクを貼り付けることができます。ファイルが画像ファイルの場合は、その画像を表示します。
+
+<span class="hljs-bullet">-</span> <span class="hljs-variable">&amp;amp;</span>ref には、カンマで区切って下記のパラメタを指定できます。パラメタを省略した場合はデフォルト値となります。
+添付ファイルのページ
+<span class="hljs-bullet">--</span> 添付ファイルが存在するページ名を指定します。デフォルトは現在のページです。
+<span class="hljs-bullet">--</span> このパラメタを指定する場合は、添付ファイル名の次に記述します。
+<span class="hljs-bullet">-</span>
+nolink
+<span class="hljs-bullet">--</span> デフォルトでは添付ファイルへのリンクが張られますが、nolink を指定するとリンクを張りません。
+<span class="hljs-bullet">-</span>
+代替文字列
+<span class="hljs-bullet">--</span> ファイル名の代わりに表示する文字列や画像の代替文字列を指定できます。指定しない場合は、ファイル名になります。
+<span class="hljs-bullet">--</span> 代替文字列には文字列以外のインライン要素を含めることはできません。ページ名、文字列以外のインライン要素を記述しても文字列として扱われます。
+<span class="hljs-bullet">--</span> このパラメタを指定する場合は、最後に記述します。
+
+<span class="hljs-bullet">-</span> <span class="hljs-variable">&amp;amp;</span>ref は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> <span class="hljs-variable">&amp;amp;</span>ref は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** ルビ構造 [#j137cd8e]</span>
+<span class="hljs-variable">&amp;ruby(ルビ){インライン要素};</span>
+行中で <span class="hljs-variable">&amp;amp;</span>ruby を書くとインライン要素に対するルビをふることができます。ルビに対応していないブラウザではルビが本文中に ( と ) に囲まれて表示されます。
+
+<span class="hljs-bullet">-</span> ルビ構造のルビにはインライン要素を記述します。ただし、ルビの特性上、期待通りの表示になるとは限りません。
+<span class="hljs-bullet">-</span> ルビ構造は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> ルビ構造は、他のインライン要素を子要素にすることができます。
+<span class="hljs-bullet">-</span> ルビ構造をルビ構造の子要素にはできません(ネストはできません)。
+<span class="hljs-bullet">-</span> 注釈内や文字サイズを小さくしている部分での使用は、ルビが判読できなくなるので避けてください。
+
+<span class="hljs-section">*** アンカーの設定 [#mb297616]</span>
+<span class="hljs-variable">&amp;aname(アンカー名);</span>
+<span class="hljs-variable">&amp;aname(アンカー名){インライン要素};</span>
+行中で <span class="hljs-variable">&amp;amp;</span>aname を記述するとリンクのアンカーを設定することができます。リンクの飛び先にしたい位置に記述します。
+
+<span class="hljs-bullet">-</span> アンカー名は、半角アルファベットから始まる半角アルファベット・数字・ハイフン・アンダースコアからなる文字列を指定します。
+<span class="hljs-bullet">-</span> アンカー名の中には、全角文字や半角空白文字、半角記号を含めることはできません。
+<span class="hljs-bullet">-</span> アンカー設定は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> アンカー設定は、他のインライン要素を子要素にすることができます。
+
+<span class="hljs-section">*** カウンタ表示 [#h7beb6ac]</span>
+<span class="hljs-variable">&amp;counter;</span>
+<span class="hljs-variable">&amp;counter(オプション);</span>
+行中で <span class="hljs-variable">&amp;amp;</span>counter を記述するとそのページにアクセスした人の数を表示することができます。
+
+<span class="hljs-bullet">-</span> <span class="hljs-variable">&amp;amp;</span>counter には次のオプションを指定できます。オプションを省略した場合はtotalが指定されたものとみなされます。
+today
+<span class="hljs-bullet">--</span> 今日のアクセス数を表示します。
+<span class="hljs-bullet">-</span>
+yesterday
+<span class="hljs-bullet">--</span> 昨日のアクセス数を表示します。
+<span class="hljs-bullet">-</span>
+total
+<span class="hljs-bullet">--</span> アクセス総数を表示します。
+<span class="hljs-bullet">-</span> カウンタ表示は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> カウンタ表示は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** オンライン表示 [#ab42f827]</span>
+<span class="hljs-variable">&amp;online;</span>
+行中で <span class="hljs-variable">&amp;amp;</span>online を記述すると現在アクセス中の人数を表示することができます。
+
+<span class="hljs-bullet">-</span> オンライン表示は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> オンライン表示は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">***バージョン表示 [#f09f9e4b]</span>
+<span class="hljs-variable">&amp;version;</span>
+行中で <span class="hljs-variable">&amp;amp;</span>version を記述すると<span class="hljs-link">PukiWiki</span>のバージョンを表示することができます。
+
+<span class="hljs-bullet">-</span> バージョン表示は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> バージョン表示は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** WikiName [#u8188184]</span>
+<span class="hljs-link">WikiName</span>
+行中で、1つ以上の大文字→1つ以上の小文字→1つ以上の大文字→1つ以上の小文字の組合わせからなる半角//文字列は<span class="hljs-link">WikiName</span>になります。
+
+<span class="hljs-bullet">-</span> <span class="hljs-link">WikiName</span>の中には、全角文字や半角空白文字、記号、数字を含めることはできません。
+<span class="hljs-bullet">-</span> <span class="hljs-link">WikiName</span>は、<span class="hljs-link">PukiWiki</span>内のページ名になります。すでに存在するページであればそのページへのリンクが自動的に貼られます。存在しない場合は<span class="hljs-link">WikiName</span>の後ろに?が自動的に付き、そのページを新規作成するためのリンクが貼られます。
+
+<span class="hljs-bullet">-</span> <span class="hljs-link">WikiName</span>は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> <span class="hljs-link">WikiName</span>は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** ページ名 [#gce935d9]</span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>ぷきうぃき<span class="hljs-operator">]]</span></span>
+行中で <span class="hljs-variable">&amp;#91;</span><span class="hljs-variable">&amp;#91;</span> と <span class="hljs-variable">&amp;#93;</span><span class="hljs-variable">&amp;#93;</span> で囲まれた文字列はページ名になります。
+
+<span class="hljs-bullet">-</span> ページ名の中には、全角文字、記号、数字、半角空白文字を含めることができます。
+<span class="hljs-bullet">-</span> ページ名の中には、&quot;#<span class="hljs-variable">&amp;amp;</span>&lt;&gt; を含めることはできません。
+<span class="hljs-bullet">-</span> すでに存在するページであればそのページへのリンクが自動的に貼られます。存在しない場合はページ名の後ろに?が自動的に付き、そのページを新規作成するためのリンクが貼られます。
+
+<span class="hljs-link"><span class="hljs-operator">[[</span>ページ名#アンカー名<span class="hljs-operator">]]</span></span>
+<span class="hljs-bullet">-</span> ページ名にアンカー名をつけることもできます。
+
+<span class="hljs-bullet">-</span> ページ名は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> ページ名は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** InterWiki [#g0dec0fe]</span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>InterWikiName:ページ名<span class="hljs-operator">]]</span></span>
+行中のページ名形式の文字列の中で、: で2つの文字列を区切ると<span class="hljs-link">InterWiki</span>になります。:の前には<span class="hljs-link">InterWikiName</span>のページで定義した<span class="hljs-link">InterWikiName</span>を、: の後ろにはページ名を記述します。
+
+<span class="hljs-link"><span class="hljs-operator">[[</span>InterWikiName:ページ名#アンカー名<span class="hljs-operator">]]</span></span>
+<span class="hljs-bullet">-</span> ページ名の後ろにアンカー名をつけることもできます。
+
+<span class="hljs-bullet">-</span> <span class="hljs-link">InterWikiName</span>の中には、全角文字を含めることができます。
+<span class="hljs-bullet">-</span> <span class="hljs-link">InterWikiName</span>の中には、半角空白文字を含めるができます。
+<span class="hljs-bullet">-</span> <span class="hljs-link">InterWiki</span>は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> <span class="hljs-link">InterWiki</span>は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** リンク [#bd6593e1]</span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>リンク名:URL<span class="hljs-operator">]]</span></span>
+行中の<span class="hljs-link">InterWikiName</span>の形式の文字列の中で、: の前に任意のリンク名を、: の後ろにURLを記述すると、そのリンク名でURLに対するリンクを貼ることができます。
+
+<span class="hljs-bullet">-</span> リンク名には、全角文字や半角空白文字を含めることができます。メールアドレスを指定する場合は、mailto:を書かずにアドレスだけを記述します。
+
+http://www.example.com/
+https://www.example.com/
+ftp://ftp.example.com/
+news://news.example.com/
+foo@example.com
+<span class="hljs-bullet">-</span> 行中に直接、URLを記述した場合は自動的にそのURLに対するリンクが貼られます。
+
+<span class="hljs-bullet">-</span> 記述したURLが画像ファイルである場合は、その画像を表示します。
+
+<span class="hljs-bullet">-</span> リンクは、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> リンクは、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** エイリアス [#u1026558]</span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名&gt;ページ名<span class="hljs-operator">]]</span></span>
+行中のページ名形式の文字列の中で、&gt; で2つの文字列を区切るとエイリアスになります。 &gt; の前にはエイリアス名を、&gt; の後ろにはページ名を記述します。
+
+エイリアスは<span class="hljs-link">PukiWiki</span>内のページ名とは別のエイリアス名で、指定したページへのリンクを貼ります。
+
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名&gt;ページ名#アンカー名<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名&gt;#アンカー名<span class="hljs-operator">]]</span></span>
+<span class="hljs-bullet">-</span> ページ名にアンカー名を付け加えてアンカーへのリンクを貼ることができます。ページ名とアンカー名の間には#をつけます。カレントページのアンカーへリンクを貼る場合はページ名を省略することができます。
+
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名&gt;http://www.example.com/<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名&gt;https://www.example.com/<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名&gt;ftp://ftp.example.com/<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名&gt;news://news.example.com/<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名&gt;foo@example.com<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名&gt;InterWikiName:ページ名<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名&gt;InterWikiName:ページ名#アンカー名<span class="hljs-operator">]]</span></span>
+<span class="hljs-bullet">-</span> エイリアスをURLや<span class="hljs-link">InterWiki</span>と組み合わせることもできます。
+
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名:http://www.example.com/<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名:https://www.example.com/<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名:ftp://ftp.example.com/<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名:news://news.example.com/<span class="hljs-operator">]]</span></span>
+<span class="hljs-link"><span class="hljs-operator">[[</span>エイリアス名:foo@example.com<span class="hljs-operator">]]</span></span>
+<span class="hljs-bullet">-</span> URLを指定する場合は、&gt;の代わりに:も使用できます。
+
+<span class="hljs-bullet">-</span> エイリアス名の中には、全角文字を含めることができます。
+<span class="hljs-bullet">-</span> エイリアス名の中には、半角空白文字を含めることができます。
+<span class="hljs-bullet">-</span> 階層化されたページでは、ページ名を相対指定することができます。
+<span class="hljs-bullet">-</span> エイリアスは、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> エイリアスは、他のインライン要素を子要素にできます。
+
+<span class="hljs-section">*** タブコード [#d2561bef]</span>
+<span class="hljs-variable">&amp;t;</span>
+行中で <span class="hljs-variable">&amp;amp;</span>t; と書くと、タブコードに置換されます。
+
+通常、フォーム内ではキーボードからタブコードを直接入力できない<span class="hljs-string">((クリップボードからの貼り付けの場合はタブコードを直接入力できます。))</span>ので、タブコードを入力したい位置に<span class="hljs-variable">&amp;amp;</span>t;を記述すると、保存時にタブコードに置換します。
+
+<span class="hljs-bullet">-</span> タブコードは、記事が書き込まれるときに置換されて記録されます。
+<span class="hljs-bullet">-</span> タブコードは、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> タブコードは、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** ページ名置換文字 [#hc95e608]</span>
+<span class="hljs-variable">&amp;page;</span>
+<span class="hljs-variable">&amp;fpage;</span>
+行中で <span class="hljs-variable">&amp;amp;</span>page; 及び <span class="hljs-variable">&amp;amp;</span>fpage; と書くと、編集中のページ名に置換されます。ページ名が階層化されたページで「hogehoge/hoge」となっている場合、 <span class="hljs-variable">&amp;amp;</span>page; は「hoge」に、 <span class="hljs-variable">&amp;amp;</span>fpage; は「hogehoge/hoge」に置換されます。階層化されていないページでは、 <span class="hljs-variable">&amp;amp;</span>page; も <span class="hljs-variable">&amp;amp;</span>fpage; も同じになります。
+
+<span class="hljs-bullet">-</span> ページ名置換文字は、記事が書き込まれるときに置換されて記録されます。
+<span class="hljs-bullet">-</span> ページ名置換文字は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> ページ名置換文字は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** 日時置換文字 [#f03aaf0a]</span>
+<span class="hljs-variable">&amp;date;</span>
+<span class="hljs-variable">&amp;time;</span>
+<span class="hljs-variable">&amp;now;</span>
+<span class="hljs-bullet">-</span> 行中で <span class="hljs-variable">&amp;amp;</span>date; と書くと、更新時の日付に置換されます
+<span class="hljs-bullet">-</span> 行中で <span class="hljs-variable">&amp;amp;</span>time; と書くと、更新時の時刻に置換されます
+<span class="hljs-bullet">-</span> 行中で <span class="hljs-variable">&amp;amp;</span>now; と書くと、更新時の日時に置換されます
+
+<span class="hljs-comment">// date?</span>
+<span class="hljs-comment">// time?</span>
+<span class="hljs-comment">// now?</span>
+<span class="hljs-comment">//- PukiWiki 1.3系との後方互換性のために、 date&amp;#63;、 time&amp;#63;、 now&amp;#63; についても使用できるようにしてあります。</span>
+
+<span class="hljs-bullet">-</span> <span class="hljs-variable">&amp;amp;</span>date;、 <span class="hljs-variable">&amp;amp;</span>time;、 <span class="hljs-variable">&amp;amp;</span>now;は、記事が書き込まれるときに置換されて記録されます。
+<span class="hljs-bullet">-</span> <span class="hljs-variable">&amp;amp;</span>date;、 <span class="hljs-variable">&amp;amp;</span>time;、 <span class="hljs-variable">&amp;amp;</span>now;は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> <span class="hljs-variable">&amp;amp;</span>date;、 <span class="hljs-variable">&amp;amp;</span>time;、 <span class="hljs-variable">&amp;amp;</span>now;は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-variable">&amp;_date;</span>
+<span class="hljs-variable">&amp;_time;</span>
+<span class="hljs-variable">&amp;_now;</span>
+<span class="hljs-bullet">-</span> 行中で <span class="hljs-variable">&amp;amp;</span>_date; と書くと、表示時の日付に置換されて出力されます。
+<span class="hljs-bullet">-</span> 行中で <span class="hljs-variable">&amp;amp;</span>_time; と書くと、表示時の時刻に置換されて出力されます。
+<span class="hljs-bullet">-</span> 行中で <span class="hljs-variable">&amp;amp;</span>_now; と書くと、表示時の日時に置換されて出力されます。
+
+<span class="hljs-variable">&amp;lastmod;</span>
+<span class="hljs-variable">&amp;lastmod(ページ名);</span>
+<span class="hljs-bullet">-</span> 行中で <span class="hljs-variable">&amp;amp;</span>lastmod; と書くと、そのページの最終更新日時に置換されて出力されます。
+<span class="hljs-bullet">-</span> ページ名を指定すると、その指定されたページの最終更新日時に置換されて出力されます。
+
+<span class="hljs-bullet">-</span> <span class="hljs-variable">&amp;amp;</span>_date;、 <span class="hljs-variable">&amp;amp;</span>_time;、 <span class="hljs-variable">&amp;amp;</span>_now;、 <span class="hljs-variable">&amp;amp;</span>lastmod;は、記事が表示されるときに置換されて出力されます。
+<span class="hljs-bullet">-</span> <span class="hljs-variable">&amp;amp;</span>_date;、 <span class="hljs-variable">&amp;amp;</span>_time;、 <span class="hljs-variable">&amp;amp;</span>_now;、 <span class="hljs-variable">&amp;amp;</span>lastmod;は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> <span class="hljs-variable">&amp;amp;</span>_date;、 <span class="hljs-variable">&amp;amp;</span>_time;、 <span class="hljs-variable">&amp;amp;</span>_now;、 <span class="hljs-variable">&amp;amp;</span>lastmod;は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** 文字参照文字 [#oc8e0c4c]</span>
+文字参照は、SGMLで定義されている文字参照文字(<span class="hljs-variable">&amp;amp;</span>copy;や<span class="hljs-variable">&amp;amp;</span>reg;など)のほか、下記の独自の文字参照文字が使用できます。
+<span class="hljs-variable">&amp;heart;</span>
+<span class="hljs-variable">&amp;smile;</span>
+<span class="hljs-variable">&amp;bigsmile;</span>
+<span class="hljs-variable">&amp;huh;</span>
+<span class="hljs-variable">&amp;oh;</span>
+<span class="hljs-variable">&amp;wink;</span>
+<span class="hljs-variable">&amp;sad;</span>
+<span class="hljs-variable">&amp;worried;</span>
+<span class="hljs-bullet">-</span> 行中で<span class="hljs-variable">&amp;amp;</span>heart;と書くと、ハートマーク <span class="hljs-variable">&amp;heart;</span> に置換されて出力されます。
+<span class="hljs-bullet">-</span> 行中で<span class="hljs-variable">&amp;amp;</span>smile;と書くと、 <span class="hljs-variable">&amp;smile;</span> に置換されて出力されます。
+<span class="hljs-bullet">-</span> 行中で<span class="hljs-variable">&amp;amp;</span>bigsmile;と書くと、 <span class="hljs-variable">&amp;bigsmile;</span> に置換されて出力されます。
+<span class="hljs-bullet">-</span> 行中で<span class="hljs-variable">&amp;amp;</span>huh;と書くと、 <span class="hljs-variable">&amp;huh;</span> に置換されて出力されます。
+<span class="hljs-bullet">-</span> 行中で<span class="hljs-variable">&amp;amp;</span>oh;と書くと、 <span class="hljs-variable">&amp;oh;</span> に置換されて出力されます。
+<span class="hljs-bullet">-</span> 行中で<span class="hljs-variable">&amp;amp;</span>wink;と書くと、 <span class="hljs-variable">&amp;wink;</span> に置換されて出力されます。
+<span class="hljs-bullet">-</span> 行中で<span class="hljs-variable">&amp;amp;</span>sad;と書くと、 <span class="hljs-variable">&amp;sad;</span> に置換されて出力されます。
+<span class="hljs-bullet">-</span> 行中で<span class="hljs-variable">&amp;amp;</span>worried;と書くと、 <span class="hljs-variable">&amp;worried;</span> に置換されて出力されます。
+
+<span class="hljs-bullet">-</span> 文字参照文字は、表示されるときに置換されます。
+<span class="hljs-bullet">-</span> 文字参照文字は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 文字参照文字は、他のインライン要素を子要素にはできません。
+
+<span class="hljs-section">*** 数値参照文字 [#ibd49862]</span>
+<span class="hljs-variable">&amp;#10進数;</span>
+<span class="hljs-variable">&amp;#x16進数;</span>
+行中で <span class="hljs-variable">&amp;amp;</span># と ; の間に10進数を、<span class="hljs-variable">&amp;amp;</span>#x と ;の間に16進数を書くと、Unicodeを数値参照して表示します。キーボードから直接入力できない文字やJIS第3水準・第4水準の文字などの表示に使用します。たとえば、内田百<span class="hljs-variable">&amp;amp;</span>#38290;と入力すると、内田百<span class="hljs-variable">&amp;#38290;</span>と表示されます。
+
+<span class="hljs-bullet">-</span> 数値参照文字は、表示されるときに置換されます。
+<span class="hljs-bullet">-</span> 数値参照文字は、他のインライン要素の子要素になることができます。
+<span class="hljs-bullet">-</span> 数値参照文字は、他のインライン要素を子要素にはできません。
+<span class="hljs-bullet">-</span> 16進数は半角小文字で指定する必要があります(XHTML 1.0 第2版から小文字に限定されました)。
+
+<span class="hljs-section">** その他 [#w8d0fa5a]</span>
+
+<span class="hljs-section">*** コメント行 [#fa693c95]</span>
+<span class="hljs-comment">// コメント</span>
+行頭で // を指定すると、コメント行になります。コメント行は出力されない行です。
+
+<span class="hljs-bullet">-</span> コメント行は、他の要素と無関係に行単位でどの位置にも記述できます。
+<span class="hljs-bullet">-</span> コメント行は、前後の他の要素に何ら影響を及ぼしません。

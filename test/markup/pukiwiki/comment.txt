@@ -1,3 +1,0 @@
-PukiWiki sample text
-
-// Hello

@@ -45,8 +45,7 @@ export default function (hljs: HLJSApi): Language {
   };
   const HEAD: Mode = {
     scope: "section",
-    begin: /^\*{1,3}/,
-    end: /$/,
+    match: /^\*{1,3}.*$/,
   };
   const ALIGN: Mode = {
     scope: "keyword",
@@ -55,30 +54,27 @@ export default function (hljs: HLJSApi): Language {
   const QUOTE_BLOCK: Mode = {
     scope: "quote",
     begin: /^(>{1,3}|<{1,3})/,
-    end: /^$/,
+    end: /^$|^(?<=[-+#*~|,])/,
   };
-
   const LISTING: Mode = {
     scope: "bullet",
-    begin: /^(-{1,3}|\+{1,3})/,
-  };
-
-  /** 定義リスト */
-  const DEF: Mode = {
-    scope: "bullet",
-    begin: /^:{1,3}.*\|/,
+    variants: [{ match: /^(-{1,3}|\+{1,3})/ }, { match: /^:{1,3}.*\|/ }],
   };
 
   const TABLE: Mode = {
     scope: "doctag",
-    begin: /^\|(.+?\|)+/,
-    end: /$/,
-  };
-
-  const CSV_TABLE: Mode = {
-    scope: "doctag",
-    begin: /^(,.*)+/,
-    end: /$/,
+    variants: [
+      {
+        match: /^\|(([^~>|\r\n]*|[~>])\|)+[hf]?$/,
+      },
+      {
+        match:
+          /^\|((LEFT:|CENTER:|RIGHT:|BGCOLOR(色):|COLOR(色):|SIZE(サイズ):|BOLD:)*\d*\|)+c$/,
+      },
+      {
+        match: /^(,.*)+$/,
+      },
+    ],
   };
 
   const BLOCK_PLUGIN: Mode = {
@@ -107,26 +103,24 @@ export default function (hljs: HLJSApi): Language {
   };
   const BOLD: Mode = {
     scope: "strong",
-    begin: /'{2}(?!')/,
-    contains: INLINE_ELEMENTS,
-    end: /'{2}/,
+    begin: /''(?!')/,
+    end: /''/,
   };
   const ITALIC: Mode = {
     scope: "emphasis",
-    begin: /'{3}/,
-    contains: INLINE_ELEMENTS,
-    end: /'{3}/,
+    begin: /'''/,
+    contains: [BOLD],
+    end: /'''/,
   };
   const STRIKE_OUT: Mode = {
     scope: "deletion",
     begin: /%%/,
-    contains: INLINE_ELEMENTS,
     end: /%%/,
   };
   const FOOTNOTE: Mode = {
-    scope: "footnote",
+    scope: "string",
     begin: /\(\(/,
-    contains: INLINE_ELEMENTS,
+    contains: ["self"],
     end: /\)\)/,
   };
   const WIKI_NAME: Mode = {
@@ -136,7 +130,7 @@ export default function (hljs: HLJSApi): Language {
 
   const INLINE_PLUGIN: Mode = {
     scope: "variable",
-    begin: /^&[a-zA-Z]\w*/,
+    begin: /&\w*(?![\r\n])/,
     contains: [
       {
         begin: /\(/,
@@ -159,6 +153,11 @@ export default function (hljs: HLJSApi): Language {
     match: /&#(\d+|x[a-f\d]+);/,
   };
 
+  const COMMENT_LINE: Mode = {
+    scope: "comment",
+    match: /^\/\/.*$/,
+  };
+
   return {
     name: "PukiWiki",
     /**
@@ -167,16 +166,15 @@ export default function (hljs: HLJSApi): Language {
      */
     case_insensitive: false,
     contains: [
-      hljs.C_LINE_COMMENT_MODE, //コメント行
+      // hljs.C_LINE_COMMENT_MODE, //コメント行
+      COMMENT_LINE,
       HORIZON,
       BLOCK_PLUGIN,
       INLINE_PLUGIN,
       NUMERIC_CHARACTER_REFERENCE,
       PARAGRAPH,
       LISTING,
-      DEF,
       TABLE,
-      CSV_TABLE,
       ALIGN,
       QUOTE_BLOCK,
       HEAD,

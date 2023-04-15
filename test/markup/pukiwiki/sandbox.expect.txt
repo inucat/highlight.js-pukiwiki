@@ -1,0 +1,112 @@
+<span class="hljs-title">#nofollow</span>
+<span class="hljs-title">#norelated</span>
+<span class="hljs-section">* SandBox: お砂場(練習ページ)です </span>
+<span class="hljs-doctag">|SEO SPAMボットの攻撃対象になるため、デフォルトでこのページは凍結されています。|</span>
+
+<span class="hljs-title">#contents</span>
+
+<span class="hljs-section">* &#x27;&#x27;見出し&#x27;&#x27; </span>
+
+<span class="hljs-section">* 大見出し 1 </span>
+
+<span class="hljs-section">** 中見出し 1-1 </span>
+
+<span class="hljs-section">*** 小見出し 1-1-1 </span>
+<span class="hljs-bullet">-</span> 項目1
+<span class="hljs-bullet">-</span> 項目2
+<span class="hljs-bullet">-</span> 項目3
+
+段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1
+段落1段落1段落1段落1段落1段落<span class="hljs-strong">&#x27;&#x27;強調&#x27;&#x27;</span>1段落1段落1段落1段落1段落1
+段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1
+
+段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2
+段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2
+段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2
+
+<span class="hljs-section">** 中見出し 1-2 </span>
+<span class="hljs-bullet">:用語1|</span>いろいろ書いた解説文1と<span class="hljs-strong">&#x27;&#x27;強調単語&#x27;&#x27;</span> <span class="hljs-string">((注釈1: WikiName))</span>
+段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1
+段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1
+段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1
+<span class="hljs-bullet">:用語2|</span>いろいろ書いた解説文2 <span class="hljs-string">((注釈2: [[SandBox]]へのリンク))</span>
+<span class="hljs-bullet">:用語3|</span>いろいろ書いた解説文3 <span class="hljs-string">((注釈3: 注釈の中にも<span class="hljs-string">((注釈の注釈を))</span>作ることができます))</span>
+
+<span class="hljs-operator">-----------------------------------------</span>
+<span class="hljs-section">* 大見出し 2 </span>
+
+<span class="hljs-section">** 小見出し 2-1 </span>
+
+<span class="hljs-section">** 小見出し 2-2 </span>
+段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1段落1
+段落1段落1段落1段落<span class="hljs-emphasis">&#x27;&#x27;&#x27;イタリック&#x27;&#x27;&#x27;</span>1段落1段落1段落1段落1段落1段落1段落1
+段落1段落1段落1段落<span class="hljs-emphasis">&#x27;&#x27;&#x27;<span class="hljs-strong">&#x27;&#x27;イタリックボールド&#x27;&#x27;</span>&#x27;&#x27;&#x27;</span>1段落1段落1段落1段落1段落1
+<span class="hljs-quote">&gt; 段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2
+&gt; 段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2
+&gt; 段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2段落2
+</span>
+レベル0レベル0レベル0レベル0レベル0レベル0
+<span class="hljs-quote">&gt; レベル1
+&gt; レベル1
+&gt; レベル1
+&gt;&gt; レベル2
+&gt;&gt; レベル2
+&gt;&gt; レベル2
+&gt;&gt;&gt; レベル3
+- はろ1
+-- はろ2
+ろろろろ2
+--- はろ3
+-- はろ2
+--- はろ3
+-- はろ2
+--- はろ3
+&gt;&gt;&gt; レベル3
+&gt;&gt;&gt; レベル3
+&gt;&gt;&gt; レベル3
+</span>
+<span class="hljs-section">* &#x27;&#x27;日付&#x27;&#x27; </span>
+<span class="hljs-code"> 日付 &amp;date;
+</span><span class="hljs-bullet">-</span> 日付 2004-08-16
+
+<span class="hljs-code"> date?
+</span><span class="hljs-bullet">-</span> 2004-08-16
+
+<span class="hljs-code"> 時刻 &amp;time;
+</span><span class="hljs-bullet">-</span> 時刻 07:29:03
+
+<span class="hljs-code"> time?
+</span><span class="hljs-bullet">-</span> 07:29:03
+
+<span class="hljs-code"> 日時 &amp;now;
+</span><span class="hljs-bullet">-</span> 日時 2004-08-16 (月) 07:30:27
+
+<span class="hljs-code"> now?
+</span><span class="hljs-bullet">-</span> 2004-08-16 (月) 07:29:03
+
+
+<span class="hljs-section">* &#x27;&#x27;リンク&#x27;&#x27; </span>
+
+URLやメールアドレスは自動的にリンクになります
+<span class="hljs-bullet">-</span> URL -- http://example.org/
+<span class="hljs-bullet">-</span> メールアドレス -- foo@example.org
+<span class="hljs-bullet">-</span> URLが各種画像ファイルであればそのまま表示します
+<span class="hljs-bullet">--</span> https://pukiwiki.osdn.jp/image/b_pukiwiki.official.png
+
+
+<span class="hljs-section">* &#x27;&#x27;その他の文字装飾&#x27;&#x27; </span>
+
+<span class="hljs-code"> 整形済みテキスト整形済みテキスト整形済みテキスト
+ 整形済みテキスト整形済みテキスト整形済みテキスト
+</span>
+COLOR(#993333){ 色の変更も可能なルール(COLOR(#993333)) }
+
+SIZE(10){ サイズの変更も可能なルール(SIZE(10)) }
+
+SIZE(20){ COLOR(#333399){ 両方指定(SIZE(20)COLOR(#333399)) } }
+
+<span class="hljs-deletion">%%打ち消し線%%</span>
+
+左寄せ
+<span class="hljs-keyword">CENTER:</span>中寄せ
+<span class="hljs-keyword">RIGHT:</span>右寄せ

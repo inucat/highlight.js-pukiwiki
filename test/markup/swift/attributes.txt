@@ -1,9 +1,0 @@
-@convention(swift)
-@objc
-@objc(name)
-
-@propertyWrapper
-@SomeWrapper(value: 1.0, other: "string", bool: false)
-@resultBuilder
-
-@ notAnAttribute
